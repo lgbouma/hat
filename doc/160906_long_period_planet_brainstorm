@@ -1,0 +1,61 @@
+Tue 06 Sep 2016 11:10:31 AM EDT
+
+Perhaps this is a bad idea b/c single-transit precision is low. For HJ discoveries,
+they're already phase-folding many 10s of transits to build a reasonable SNR.
+
+What you'd be advocating for long-period jupiters is ~2-3 transits (over a baseline
+of many years, ideally).
+
+? Does HATN/S _have_ such long baseline data? The survey has been running for ~10yr,
+but the fields are ~90deg^2.
+  If all we have to work with is <~180d baseline data, might not be worth doing it
+  this way.
+  (HATS-17b)
+
+
+Burke+ 2015 is _the_ reference for Rp<4Re planet occurrence statistics (or DFM thinks).
+Did they talk about HJs? Could you do occurrence stats for HJs w/ the Kepler sample?
+(are the metallicities well-known, at all?)
+
+
+Another issue with this:
+* Can't really do reliable population inference w/ HAT data. Their selections aren't
+  systematic in the way the KOI list is.
+* They also probably don't know their completeness very well(?)
+
+
+Biggest picture:
+HOW TO FIND SHORT-PERIOD TRANSITING EXOPLANETS
+1) filter data to remove systematics
+  (star, instrumental, weather, detector jitter...)
+2) template-based grid of likelihoods
+  (restricted to systems with >=3 transits)
+3) remove false alarms of "visual inspection" OR
+  use robotic (model comparison, like BIC) ways to rule out false alarms...
+
+For (3), the reasons to quantify your biases include:
+1) accurately computing planet occurrence rates
+2) being able to reproduce your analysis
+
+
+HOW TO FIND LONG-PERIOD TRANSITING EXOPLANETS
+1) visual inspection
+(Wang+ 2015, Uehara+ 2016, Kipping+ 2014,2016, Osborn+ 2016)
+
+-> really doesn't let you be systematic, or know how complete/reliable your
+search is, or how to quantify your false positive rates
+
+OR fully-automated:
+1) filted data to remove systematics
+2) template-based grid of likelihoods (restricted to high SNR candidates)
+3) remove false alarms using model comparison
+
+astrophysical signal + star + weather + detector = signal
+
+Use autodiff for plausible astrophysical signals:
+  *U-shaped transit vs box-shaped transit vs step function vs straight
+Use gaussian process regression for the star, weather, detector.
+
+Then BIC to compare models!
+
+

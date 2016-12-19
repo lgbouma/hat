@@ -1,0 +1,42 @@
+Tue 06 Sep 2016 08:37:00 AM EDT
+
+## Search archival HATNet and HATSouth data for M dwarfs transited by planets or stars.
+
+Will require first removing stellar variability (can be ~10-100mmag, correlated over
+timescales of hours)
+
+A big component: knowing which stars are M dwarfs.
+  * Gaia DR1 comes out September 15
+  * TESS' M dwarf catalog is a thing I can access
+  * Gaidos CONCH-SHELL (?)
+
+Questions: by “stellar variability”, this presumably means more than astrophysical stellar flicker 
+(that is, brightness variations from surface granulation) – it also includes red noise from the 
+atmosphere? (keep in mind, I've been thinking about TESS & Kepler mostly from the past year). This 
+would presumably be a good way to get up to date with VARTOOLS & more specifically the algorithms 
+it uses to search for transits in light curves. There might also be a case for non-periodic transit 
+searches (e.g. QATS, which does BLS but over variable times between transits, and thus at greater 
+computational cost). There might similarly be a case for planets in EB systems; a transit of an M 
+dwarf by a CBP in an EB, for instance, would be a big deal. So – overall a highly relevant project 
+to the types of discovery tools that I'm interested in, and a great way to learn about many of them 
+with a useful application in mind. It's not clear whether we would find anything – but if we do this 
+right we could at least get lower bounds for what size transiting planets at what periods we could 
+have detected about all the HATN/HATS observed cool dwarfs. I don't know how common it is to publish 
+such “lower bounds” results, but they're useful for people who do planetary population statistics. 
+The main challenge of this project would be in the analysis – it'd primarily be a means for me to 
+learn best-practices for pixel→light curve→ detrending → transit search → (non)detection.
+
+Waqas mentioned:
+* "detrended raw light curves w/ TFA and EPD algorithms".
+What are these?
+
+TFA: trend filtering algorithm (Kovas+ 2005)
+Leverages the fact that wide field surveys generate multiple light curves that are
+affected by similar systematics.
+
+Methods used for kepler:
+Regularized regression, GP regression, PCA, unsupervised learning methods.
+
+EPD: external parameter decorrelation (Bakos+ 2007).
+Idea is to include external parameters that are correlated with your noise when
+detrending. 

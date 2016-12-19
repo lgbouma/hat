@@ -1,0 +1,13 @@
+Tue 06 Sep 2016 11:50:19 AM EDT
+
+Has HAT even run a FT-based analysis, rather than BLS?
+
+Sanchis-Ojeda:
+1) Run PDC-MAP (to remove instrument systematics; leaves astrophysical variability)
+2) Stitch together light curves, calculate FT.
+  Look for peaks above a certain SNR, require that you see at least one subharmonic.
+  Only keep those that have no signs of stellar pulsations.
+3) Period-folding analysis
+
+The issue is obviously that you don't EXPECT to see anything big enough at
+such short periods with lower precision photometry.

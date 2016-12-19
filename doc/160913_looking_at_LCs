@@ -1,0 +1,110 @@
+Tue 13 Sep 2016 08:34:15 AM EDT
+
+Well, step 0: get actual access to the EPD / TFA corrected light curves.
+Step 0.5: talk w/ Joel, see if he has an EB list collecting dust somewhere.
+So step 1: identify some EBs.
+
+Recall: Hoffman said OOM ~6e6 LCs from HATN (not Gaspar's ~4e7)
+
+========================================
+# From Andrej Prsa's Kepler EB catalog paper (Kepler EB #1)
+
+Notes:
+* Q0 & Q1: 45d of Kepler data. 
+* Kepler's EB occ rate: ~1.2%
+* Existing EB catalogs:
+  OGLE, MACHO, EROS, Hipparcos (astrometric+eclipsing, Perryman '97),
+  other ground-based searches - Devor+ '08, Christianssen+ '08.
+  Complex b/c of window functions.
+* Kepler had no shutter -> would get smearing during readout
+* Four times / yr Kepler rolled by 90deg to realign solar panels. This
+  defines quarters. Q0: commissioning, Q1: ~35d first operation dataset, 
+  b/c of launch date.
+* Kepler pipeline is optimized to goal of finding earth-like planets.
+  Presumably HAT's EPD and TFA are similar (although more TFA than EPD)
+* How to ID EBs/transits w/ background contamination: during transits,
+  expect the photocenter to move (requires good pointing accuracy)
+
+Q's:
+* Is Kepler 16 in this original catalog?
+* what are different EB morphology types? physical meaning? impact on LC?
+* how to compute fillout factor / sini for overcontacts?
+* similar in finding parameters for detached binaries?
+* what is HAT's EB occurrence rate?
+* what is the focus of a telescope/camera, and why does it matter?
+* when people quote "kepler has a f/1 primary" what does this mean?
+
+Reading todo:
+* Hartman+ '04, HAT's contribution to finding EBs for Kepler
+
+How to ID EBs:
+1. SIMBAD
+2. All Sky Automated Survey - North / South (Pigulski+ '08?)
+3. Automated transit detection -- via a pipeline.
+    * Matched-filted correlation (Jenkins+ '96)
+    * BLS, + use of FAP statistic
+    -> i.e., perhaps do a transit search w/ VARTOOLS
+4. Morphological classification of power spectra (confirms)
+?. Once basic cuts are made, use periodogram tools for manual vetting --
+    1) ephem: computes a BLS power spectrum, analysis of variance, & lomb-scargle.
+    2) sahara: primary/second ID by click
+
+Generally:
+* People _specialize_ in EBs. E.g., check out __Hotwired__ conferences, in which
+  you can see what people are actually doing, data-side.
+
+Andrej's group makes software:
+* PHOEBE: modelling code for physics of EBs
+* EBAI: EBs via AI. Artificial neural network for rapid parameter estimation.
+* polyfit: polynomial chain fitter for analytical approxns to light curves.
+
+========================================
+# Types of LCs available on phn12:
+
+*rlc: raw light curves
+*epdlc: external parameter decorrelated LCs
+*tfalc: trend filter algorithm'd LCs
+Other data:
+*epdlog: how many stars are "rejected" vs "used" from running EPD?
+  (why would running EPD reject or use things?)
+
+Good fields to start with: G285, G284, G257.
+
+? Why do some of the directories have data from OTHER FIELDS?
+For instance, G284 has HAT-333-*.*lc data, as well as HAT-284-*.*lc data.
+-> B/c they're numbering fields by TILE NUMBERS. (like, a healpix tiling
+  scheme, perhaps). And the tiles have different shapes from the actual
+  hat fields. This means that if you want to stitch all the LCs of a particular
+  star, they won't be purely matched to the FIELD-ID.
+  You'll need to search by the HAT-ID-NUMBER. (which is unique per star...
+  I think)
+
+? Why do we _store_ tfalc, epdlc, and rlc in different files? Seems quite
+inefficient for space usage, since they're all formatted to have nans
+before TFA / EPD correction is done. Why not just keep one thing? (you have
+placeholder columns anyway)
+-> so, kind of yes. Except that once TFA is run, apparently some extra rows
+  are nan'd out (e.g. b/c of photometry quality flag)
+
+? Why HAT-P-* as planet identifier?
+-> A: yeah, it stands for planet. Original idea was that there'd be HAT-EB-*,
+  there's a HAT-MEB somewhere
+
+? Full explanation of columns? 
+        col_names = ['KEY', 'OFIELD', 'BJDc', 'MRAW0', 'MRAWERR0', 'PHOTFLAG0',
+                     'MRAW1', 'MRAWERR1', 'PHOTFLAG1', 'MRAW2', 'MRAWERR2', 'PHOTFLAG2',
+                     'MFIT0', 'MFIT1', 'MFIT2', 'MEPD0', 'MEPD1', 'MEPD2', 'MTFA0', 'MTFA1',
+                     'MTFA2', 'X', 'Y', 'BG', 'BGERR', 'S', 'D', 'K', 'HA', 'Z', 'JDc']
+    Different apertures I basically get.
+    Raw instrumental photometry.
+    Vs "FIT" photometry (highest level of what's scientifically useable)
+    Vs EPD photometry
+    Vs TFA photometry
+    X,Y position on CCDs.
+    BGs presumably like a median or something of neighboring pixels
+    S/D/K are shape parameters for the PSF (an ellipsoidal gaussian)
+    HA: ?
+    Z: ? (metallicity? eh, doubtful)
+    JDc: reduced julian date (nice!)
+
+--> probably use JDc and different apertures (e.g., EPD0 for dim stars, EPD2 for bright stars)

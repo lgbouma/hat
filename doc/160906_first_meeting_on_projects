@@ -1,0 +1,110 @@
+16/09/06
+
+I opened with "big picture, I'd like to do data analysis"
+
+We talked about 1) an M-dwarf focused search, 2) the long-period question,
+3) variable stars, 4) short-period transiting planets, and 5) CBPs about EBs.
+
+On long period planets: they have ~50d candidates. The problem with this as a
+semester project idea is that it's much longer than a semester. It'd be something
+to come back to in a year or 3, once it's transiting.
+The Q of "what do you _do_ with them?" is the big thing. Obviously they're quite
+an interesting topic, but the scope is also tricky.
+
+The basic data they have: 4M light curves at <2% precision.
+
+This is obviously enough to do interesting work on variable stars (e.g. RR Lyrae,
+delta-scuti), and there's already another student who's working on that as a
+semester project.
+
+The detrending they do: a Trend Filtering Algorithm (TFA), and an External
+Parameter Decorrelation (EPD). In other words they try to _leave_ astrophysical
+variability in. Periodic oscillating stars can still be characterized -- there's
+no fitting them out.
+
+In terms of EB data then, if you were to search for CBPs the scope of the project
+would be reasonably clear:
+1) Take everything flagged as an EB in the HATS dataset
+    (or do the flagging yourself if not already done)
+2) Find periods for binaries to eclipse e/other (so that you have binary period).
+3) Select so that 
+    observing baseline >~ (binary period)*4 or 5.
+
+  for many of these EBs, we're talking about a season (~4-5months) of southern
+  summer data. The inner stability limit, at which these planets are expected to
+  cluster, is typically this factor of 4 or 5.
+  So if we don't have enough of a baseline, why would we keep the data?
+
+  As another first cut, just based on "experience" from the Kepler data, throw
+  away the pileup of P<1d binaries as well
+  (as an extension / being more careful, might want to include these for surprising
+  discovery potential)
+
+  So if we have 1 season's data (120-150days), we're dealing with EBs of periods 
+  1day-30/40days. Best sensitivity is at short periods, but more realistically
+  we wouldn't expect much up to ~10d, at which point we're talking about like
+  2, at best 3 transits per season.
+
+  The _ideal_ case would be something like Kepler 47b, P_in=7.4d, P_p=50d.
+  Literally the shortest period CBP currently known.
+  There's also one (Kepler 413) with a 66.3d period.
+
+
+* How common are EBs? (consider Kepler EB catalog papers, has HAT published?)
+* How many EBs do they have, and what is the distribution for their baselines? 
+  (I didn't really get a good answer from Gaspar on this, but the point is that 
+  there might be a _few_ fields that have multiple seasons of observing, which
+  would be quite important for what is basically a long-P planet search, with
+  the added challenge of an extra source of stellar variability, + wonky 
+  non-periodic transit times (QATS to the rescue? I think one of Agol's students
+  is doing this).
+
+
+ASIDE:
+Possible project w/ Adam Burrows: figuring out what MORE you can learn from a 
+planet transiting & being occulted by TWO stars. Especially w.r.t. transmission &
+emission spectra: two different background sources basically gives you an extra
+check on whatever features you see in the spectrum: are they truly from the planet,
+or are they weirdly convolved with the stellar spectrum?
+
+
+========================================
+Obviously, the point right now is that I'm much more interested in & excited by
+the prospect of working on something CBP-related.
+This interest is still somewhat pragmatic: at minimum I'd want to say _something_
+about a minimum planet occurrence rate for CBPs transtiting EBs at certain period
+and radius ranges (i.e. by doing the search in a nice automated way).
+I'd also like to FIND something.
+
+If it turns out the baselines aren't good enough, or the RMS error on the light
+curves makes recovery impossible, then... well then I'll need to try something
+different.
+
+This is in some sense a dream project though -- it's also the "in" I wanted to the
+TESS CBP search front.
+
+
+========================================
+NEXT STEPS:
+* Find updated info on status of HATS light curves. How long are the baselines,
+  at what precision?
+* How many EBs will they likely have?
+   -> based, e.g., on Kepler EB statistics. (Get & read the EB working group's
+    papers)
+* What was the Kepler EB->CBP rate? (e.g. review Haghihipour's talk)
+    Would *ANY* of these have been detected by a survey like HATS?
+* How many will be at sufficient precision for single-transit detections?
+* How many will be at sufficient precision for phase-folded detections?
+* What would necessary properties of the CBP population _BE_ in order to expect
+  _any_ CBPs in the HAT data?
+
+* Should this be sufficient to detect CBPs based on Kepler data?
+  (what was the thing I mentioned in my application?)
+
+Getting into the data weeds:
+* What are common CBP search methods? Uncommon ones?
+* For instance... what would the necessary conditions be just on _eclipse timing_
+  to constitute a bonafide CBP detection?
+  (the literature on this is probably more scattered, & more oriented on heuristics
+  to numerical N body orbit intergration)
+

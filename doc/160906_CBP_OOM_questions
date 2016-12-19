@@ -1,0 +1,25 @@
+
+========================================
+NEXT STEPS:
+* Find updated info on status of HATS light curves. How long are the baselines,
+  at what precision?
+* How many EBs will they likely have?
+   -> based, e.g., on Kepler EB statistics. (Get & read the EB working group's
+    papers)
+* What was the Kepler EB->CBP rate? (e.g. review Haghihipour's talk)
+    Would *ANY* of these have been detected by a survey like HATS?
+* How many will be at sufficient precision for single-transit detections?
+* How many will be at sufficient precision for phase-folded detections?
+* What would necessary properties of the CBP population _BE_ in order to expect
+  _any_ CBPs in the HAT data?
+
+* Should this be sufficient to detect CBPs based on Kepler data?
+  (what was the thing I mentioned in my application?)
+
+Getting into the data weeds:
+* What are common CBP search methods? Uncommon ones?
+* For instance... what would the necessary conditions be just on _eclipse timing_
+  to constitute a bonafide CBP detection?
+  (the literature on this is probably more scattered, & more oriented on heuristics
+  to numerical N body orbit intergration)
+

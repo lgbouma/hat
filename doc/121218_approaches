@@ -1,0 +1,26 @@
+Sun 18 Dec 2016 07:09:36 PM EST
+
+# What if they're not prelabeled? (basically the case of EBs in HAT)
+
+The `scikit_learn_cheatsheet` says: "you're trying to predict a category,
+without labeled data, and you don't really know the number of categories of
+objects you're looking for. The most basic analysis would be some kind of
+_clustering_. If you keep it below 10k samples, it's possible you could try
+`MeanShift` or `VBGMM`. If you want to go bigger than 10k samples, likely tough
+luck".
+"If you're willing to say that there are TWO categories (either is or is not
+EB), with <10k samples could try `MiniBatch` or `KMeans`, else stick with
+`KMeans`."
+
+The field-knowledge (i.e. thinking about it from an astronomer's perspective)
+says:
+
+* Start by getting the field of HAT data. (Any field will be fine)
+* Cross-correlate the HAT objects with other catalogs (2MASS, SDSS, etc). In
+* particular, query SIMBAD or other databases to find what _known_ EBs are in
+* that field.
+* Look at the LCs for those EBs. Can you extract the basic periods from the BLS
+* that has already been done? Can you phase-fold them? How does EPD vs TFA vs
+* RAW affect the extraction?
+* Only then get into deeper analysis. (I.e. field-specific and finding
+* not-easily-cataloged EBs).

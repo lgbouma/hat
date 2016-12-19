@@ -1,0 +1,47 @@
+Mon 05 Sep 2016 05:09:16 PM EDT
+
+3 sites: LCO in Chile. HESS in Namibia. SSO in Australia. 
+Each site has 2 systems.
+Each system has 4 180-mm (18cm) aperture f/2.8 (??) astrographs attached
+to large-format CCDs, with a system FoV of 8.2deg*8.2deg at ~4arcsec/px.
+They observe 8 < r < 14 stars at 4-minute cadence.
+
+? are these systems used to overlap (i.e. continuous coverage), or are
+  they used to get most sky?
+
+Wide separation in longitude allows near-continuous monitoring of select
+fields during the southern summer months (why not winter?) which makes
+a big difference for phase coverage -> easier to rule out false-positives.
+
+? how good is their phase coverage?
+
+Highlights:
+* Saturn-mass planet about an M-dwarf (HATS-6b)
+* Longest orbital period transiting planet discovered from the ground (HATS-17b)
+  (P=16.25d, Rp=0.78Rj, Mp=1.34Mj)
+
+K2 C7 field overlapped w/ a HATS field, HS G579, which they obsd at 4min cadence
+with 3 systems at 4 minute cadence.
+HATS extracted light curve for 320k stars in the field, with a median of 10,100
+r-band light curve points per object.
+(~40k minutes, which is 27.8 days of continuous coverage... from Sep 2009 to Aug
+2011?! 5% phase coverage? what?)
+
+Detrended raw light curves w/ EPD and TFA algorithms --> high quality light curves
+for ~250k stars. Unbinned precision 6 mmag at r~12mag.
+
+? what are EPD and TFA algorithms?
+
+63 exoplanet transit candidates
+4 confirmed planets
+
+Extend the time baseline for the K2.7 observations of overlapping objects
+(n.b. HATS has much smaller pixels than e.g. TESS, but similar to K2), and also
+allow ID'ing variable objects in and near the K2 object stamps.
+
+DATA IS AT:
+>>  data.hatsurveys.org
+
+This data server will be the central point of where public HATS data and light
+curves will be distributed. They'll also serve data from HATN and K2 that have
+been reduced using HAT tools and methods (Chelsea Huang's paper / thesis 2015).

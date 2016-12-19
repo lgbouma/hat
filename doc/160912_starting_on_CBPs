@@ -1,0 +1,75 @@
+Mon 12 Sep 2016 07:12:27 PM EDT
+
+========================================
+Getting set up with Waqas:
+The oldest data (pre-2007) has different columns and they have not been
+merged to be compatible yet.
+
+The data we will immediately play with is in:
+/H/BIGPROJ/hatuser/2007_hatnet_phot.
+
+The directories are sorted by field. E.g., G309 has 309 as a field number.
+LC subdirectory means lightcurve.
+
+The apertures were figured out by Kalo a while ago. They're _not_ explicitly
+optimized by star b/c that introduces the problem of concatenating the light
+curves of different stars w/ different apertures (that change depending on
+observing conditions).
+They go 1,2,3 where 1 is the smaller (~2px radius), and 3 is the biggest (~4px
+radius).
+Note HATN has big pixels: ~10"/px (vs. HATS ~5"/px).
+
+Generic linux tips for the debian system the server runs on:
+`apropos "string"` lets you find programs related to 'string'
+`feh *` runs the feh program on all images in this folder
+
+EFFECT OF APERTURE NUMBER ON LIGHT CURVE:
+  * Small apertures(1): noisier for brighter stars, lower RMS for dim stars
+  * Big apertures(3): lower RMS for bright stars, higher RMS for dim stars
+-> they have a way of taking the bestaperture, *bestap*. 
+
+Rough picture of data:
+INSTR magnitudes: not at all corrected
+EPD: _basic_ pass -- 1st order filter (sinusoidal fit over the whole timescale
+  of the observation). Least sophisticated.
+TFA: more sophisticated. Does what I originally though EPD did -- cross-correlates
+  over differnet pixels and stars to remove instrumental systematics.
+  However, TFA curves have a larger probability of being __overcorrected__ for
+  actual viarables.
+
+For EBs, Waqas recommends starting with EPD light curves.
+
+Generically, for e.g. field G309, at r=10 where the precision peaks, EPD is around
+5mmag (bestap), and TFA is around 3-4mmag.
+
+To get stellar data:
+  * hatsurveys.org/lightcurves
+  --> N.b. each HAT object is cross-matched w/ a 2MASS catalog ID.
+
+Possibly useful tools:
+* VARTOOLS
+* EB fitters?
+* DFM's model comparison framework
+* Whatever the Kepler EB team did!
+
+========================================
+Discussing w/ John Hoffman:
+His variability project is big-picture: how do you classify __all variable events__
+in the HAT data?
+One approach that he's going down is some kind of machine learning neural network
+that recognizes them as images (once phase-folded over the primary peak of a BLS
+spectrum). The idea here is a big freakin **classifier**.
+
+This is basically his thesis.
+Started in quantum cosmology, realized he prefered machine learning / data analysis.
+
+He also is a running a B-dwarf oscillation search on the side. Apparently their
+flux variations (asteroseismic? or some kind of pulsations) are astrophysically
+interesting.
+
+========================================
+From what Waqas is giving us, there's no EB flag. 
+So step 1: identify some EBs.
+
+Well, step 0: get actual access to the EPD / TFA corrected light curves.
+Step 0.5: talk w/ Joel, see if he has an EB list collecting dust somewhere.

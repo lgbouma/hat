@@ -1,0 +1,174 @@
+Tue 13 Sep 2016 11:05:08 AM EDT
+
+on phn12, important resource is:
+/home/jhartman:
+
+*See HATpipebin symlink (in Joel's folder):
+  SVN repo for all hat-related tools.
+--> it's also likely where anything that I write will get dumped (yeesh. Not much by way
+  of structure, but I'm sure I'll figure it out better)
+
+Raw flux: no zero-point, no corrections (subtracted off sky bkgnd)
+  --> MRAW*
+Fit magnitude: first order fit. (?? could use more clarity on what this means)
+  --> MFIT*
+EPD magnitudes:
+  --> MEPD*
+TFA magnitudes:
+  --> MTFA
+
+
+BE ON THE LOOK-OUT FOR FORMAT CHANGES: pre-2013 (give or take -- look at LC files)
+--> columns change (need to read slightly differently)
+
+
+General point for deep eclipses:
+  * FIT LCs, or EPD LCs best direction. (don't use the TFA b/c it filters to hard
+    in the direction of transiting planets, removing EB-esque variables)
+  * the .tfalc files have CLIPPED the EPD outliers (e.g., deep eclipses, in EBs)
+
+TIPS AND TRICKS:
+**White space delimited for file reading** (relevant for any pandas reading)
+
+====================
+Useful shell functions, e.g. in Joel's home directory:
+
+.func.hatuser
+.alias.hatuser
+.2massreadrc
+
+--> all useful! (see everything i copied to joels_dot_files)
+
+====================
+
+EPD: fits against S/D/K (the parameters describing the PSF) (highest level)
+* Can __distort__ LCs (for EBs).
+
+TFA:
+* removes 5sigma outliers from LCs!!
+  -> SUPER important. this is for detecting transiting planets.
+  (sigma defined from median deviation from median. So with e.g. 1% RMS, this
+   means "if you're above 5% dip, we're not interested in you!")
+* then it fits each LC as linear comb of ~800 light curves
+  (done purely empircally. the idea is something like PCA, which is another
+  thing I have yet to grok.)
+
+* EBs at 5-10d periods tend to get _filtered_ by TFA!!
+  (they remove low-frequency variability! since the LCs have ~1/f noise,
+  they can usually find a lin combination of randomly sampled "basis vectors"
+  that will remove it!)
+
+
+========================================
+OK: getting to CBP planet search.
+
+You want __long baselines__ and HATN has some fields with long baselines. This is
+quite useful (OOM) b/c you want to have multiple transits if you're going to have
+any chance at detecting ~<1% transits.
+
+EXERCISE:
+Kepler 16: did HAT observe any of the transits?:
+HAT-115-0003266
+Their LC has 9000 points.
+It's in field G115.
+
+Did they see any transits?
+
+To look up stars:
+`2massread`: give it right ascension (sexadecimal or deg), -d declination,
+  -s search radius in degrees.
+
+`getfieldswithlc.sh` --> give it a HAT name.
+(sometimes the same star falls into different fields)
+
+(115 NOT field numbers. It's TILE numbers.)
+
+
+in /G115/BASE/lcstat_tfa_merged.txt:
+reverse order of columns:
+suggested aperture
+TFA-rms
+2mass base magnitude (optical) -- do not trust (doesn't matter!, but good to 0.1mag)
+number of points excluded when calculated tfa stats
+number of points in light curve
+
+========================================
+What to do to find eclipsing binaries:
+* 0. pick a field. Find what EBs are __known__ within that field (SIMBAD, ASAS North/South,
+  other surveys...)
+* 1. use the outputs from HAT's already-computed BLS search! (or something along those lines)
+
+in e.g.:
+G155/BLS
+LOOK AT *.blsanal files! (don't need to rerun)
+SAVES THE TOP 5 BLS PEAKS FROM THEIR BLS ANALYSIS.
+
+frequency: in cycles/day (of that peak)
+period: 1/freq
+Q: fractional transit duration (Tdur/period)
+epoch: at the _start_ of transit (not the center)
+H: out-of-transit-magnitude for boxcar fit
+L: in-transit-magnitude
+Dip: H-L
+RESsig: ?. RMS of residuals?
+Dipsig: RMS of in-transit-points?
+
+--> apply selection criteria based on BLSanal files!! 
+
+Most useful columns:
+SR: signal residue. Defined in the BLS paper (not that useful, but in the paper)
+  -> vertical axis on the bls spectrum
+SNR (look for high SNR)
+DSP: like a SNR. different defn.
+DSPR: slightly different defintion
+
+Another type of SNR (aside from phase-folding on the periods, then from phase-folded
+LC):
+* how pretty BLS spectrum is -- the peak height above scatter in BLS spectrum
+
+**Where are the differences _documented_?**
+In the pipelines!
+Description of pipeline:
+
+HATpipe/source
+  compiled. C++, fortran.
+  > lc/frontends directory: code for running BLS is here!
+    `blsspec.c` creates the BLS spectrum.
+  > lc/analyse
+    `blsanal.c` 
+    look for BLS_FIND_PEAKS, BLS_CALC_ANAL.
+
+HATpipe/scripts:
+  shell, python, .. 
+
+** CHOOSE THINGS ABOVE DSP OF 9 IN BLS FILES **
+(BLS picks up any variable thing -- astrophysical or not -- so there will be junk too)
+--> then will be applying a bunch of other filters.
+
+Things to check:
+* is the scatter inside and outside of transits different?
+* look for secondary eclipses (would indicate EBs)
+* look for large ampltiude transit variations
+  (for transits, bad. for EBs, maybe good?)
+
+========================================
+How to know what was done:
+in the G115/scripts files.
+
+Parts of the pipeline that identifies transit candidates from the BLS results:
+1. fold_x_gb_xv_inspect4.sh: first script in search for transit candidates
+2. doblsslcpostprocess.sh: second script run in transit candidate search
+
+------------------------------
+So look at:
+blsanalsum.txt: has the BLS results for _every object in the field_
+
+gawk '$16 > 9 {print}' blsanalsum.txt | gawk '{print $1}' | sort | uniq | wc -l
+
+Tells you: you have ~13k (out of 95k) that match this peak for a given field.
+
+==================================================
+POSSIBLE PUBLISHABLE OUTCOMES:
+* 1 transiting CBP candidate isn't enough. you'd need confirmation
+* BUT, "I looked at 20% of the northern sky, and here are 100 candidates, likely with
+  99% false alarms, you go do the followup"
