@@ -1,0 +1,6 @@
+
+On optimal apertures for bright stars:
+* Seems like apertures for really bright stars only get as large as 4 pixels. 
+  This seems too small? (π*4 ~= 12px total. Vs ~30 for TESS, which has bigger
+  pixels)
+

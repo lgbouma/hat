@@ -4,3 +4,5 @@ field_*
 *phn*
 *csv*
 *head
+/src/astrobase*
+/data/* # :(

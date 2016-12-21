@@ -1,0 +1,81 @@
+OBJECT
+------
+
+objectid = HAT-579-0051858
+hatid = HAT-579-0051858; twomassid = 19394601-2544539
+network = HS; stations = HS01,HS03,HS05; ndet = 10564
+
+ra = 294.941746; decl = -25.748318
+pmra = -9.3; pmra_err = 2.6
+pmdecl = -7.6; pmdecl_err = 2.6
+
+jmag = 13.098; hmag = 12.779; kmag = 12.661; bmag = nan; vmag = nan
+sdssg = nan; sdssr = nan; sdssi = nan
+
+METADATA
+--------
+
+datarelease = 0; lcversion = 0
+lastupdated = 1445483599.116; lcserver = 8ad6d6a
+comment = initial HS lightcurve creation
+lcbestaperture = {"ap": ["002"], "ism": ["002"]}
+lcsortcol = rjd
+lcfiltersql = 
+lcnormcols = 
+
+CAMFILTERS
+----------
+
+4 - r - Sloan r AST0285
+12 - r - Sloan r SN070 AST0285
+20 - r - Sloan r SN078 AST0285
+
+PHOTAPERTURES
+-------------
+
+000 - 2.05 px
+001 - 3.00 px
+002 - 4.00 px
+
+LIGHT CURVE COLUMNS
+-------------------
+
+000 - rjd - time of observation in Reduced Julian date (JD = 2400000.0 + RJD)
+001 - bjd - time of observation in Baryocentric Julian date (note: this is
+BJD_TDB)
+002 - net - network of telescopes observing this target
+003 - stf - station ID of the telescope observing this target
+004 - cfn - camera frame serial number
+005 - cfs - camera subframe id
+006 - ccd - camera CCD position number
+007 - fld - observed field name
+008 - flt - filter ID from the filters table
+009 - xcc - x coordinate on CCD chip
+010 - ycc - y coordinate on CCD chip
+011 - bgv - sky background measurement around object in ADU
+012 - bge - error in sky background measurement in ADU
+013 - fsv - source extraction S parameter (the PSF spatial RMS)
+014 - fdv - source extraction D parameter (the PSF spatial ellipticity in xy)
+015 - fkv - source extraction K parameter (the PSF spatial diagonal
+ellipticity)
+016 - aim_000 - aperture photometry raw instrumental magnitude in aperture 000
+017 - aie_000 - aperture photometry raw instrumental mag error in aperture 000
+018 - aiq_000 - aperture photometry raw instrumental mag quality flag for
+aperture 000
+019 - aim_001 - aperture photometry raw instrumental magnitude in aperture 001
+020 - aie_001 - aperture photometry raw instrumental mag error in aperture 001
+021 - aiq_001 - aperture photometry raw instrumental mag quality flag for
+aperture 001
+022 - aim_002 - aperture photometry raw instrumental magnitude in aperture 002
+023 - aie_002 - aperture photometry raw instrumental mag error in aperture 002
+024 - aiq_002 - aperture photometry raw instrumental mag quality flag for
+aperture 002
+025 - arm_000 - aperture photometry fit magnitude in aperture 000
+026 - arm_001 - aperture photometry fit magnitude in aperture 001
+027 - arm_002 - aperture photometry fit magnitude in aperture 002
+028 - aep_000 - aperture photometry EPD magnitude in aperture 000
+029 - aep_001 - aperture photometry EPD magnitude in aperture 001
+030 - aep_002 - aperture photometry EPD magnitude in aperture 002
+031 - atf_000 - aperture photometry TFA magnitude in aperture 000
+032 - atf_001 - aperture photometry TFA magnitude in aperture 001
+033 - atf_002 - aperture photometry TFA magnitude in aperture 002 

@@ -1,0 +1,204 @@
+Mon 19 Dec 2016 05:19:32 PM EST
+
+The pipe-dream is a rigorous CBP search. The cheap grab is finding all bright
+EBs below some bright limit, running BLS on their EPD light curves, removing
+the EB signal, and seeing what's left. (& If it's transit-candidate esque)
+
+Over the next 2 weeks, we do the cheap grab.
+
+==============================
+
+EXERCISE:
+
+I-i Kepler 16: did HAT observe any of the transits?
+==========
+* From Wikipedia, retrieved RA and dec of Kepler 16.
+* From phn12 cmd line:
+
+  > 2massread -r 19:16:18.17 -d 51:45:26.78 -s 0.005
+
+Puts the relevant identifiers to stdout. But important questions: where is
+this program? Who wrote it? How does it work? What are the columns?
+
+Answers: In ~/HATpipebin/bin, the binaries from the HAT pipeline. These are 
+generally tools built by contributors to the HAT project. If you wrote a tool,
+you can use it freely. But they're not to be distributed to whoever, which
+means (equivalently) that I shouldn't be hosting them willy-nilly on github.
+
+For the source... harder to find. Emailed Waqas. Gaspar cc'd and got back to me
+with source (& we'll talk copyright):
+
+int fwrite_line(FILE *fw,char *ID_2mass,double ra,double dec,
+    double xi,double eta,double ra_cen,double dec_cen,
+    double J,double Junc,double H,double Hunc,double K,double Kunc,
+    char *ph_qual,double B,double V,double R,double I,
+    double u_sdss, double g_sdss, double r_sdss, double i_sdss,
+    double z_sdss, int hatfield,int hatnum)
+
+But REGARDLESS, we have the HAT ID:
+HAT-115-0003266
+
+* Now get the associated LC:
+
+  > getfieldswithlc.sh HAT-115-0003266
+
+The source for this shell script is (obviously) there. It looks thru all of
+them (presumably), whatever drives they're mounted on. It's in:
+/home/lbouma/HATpipebin/scripts/genutils_scr/getfieldswithlc.sh
+
+  #/H/BIGPROJ/hatuser/2007_hatnet_phot/G115 HAT-115-0003266 
+  LC/HAT-115-0003266.tfalc 9445 102 11.77690 0.00616 3
+
+Means: it's only in field G-115. The LC has 9445 points. Likely 11.7 mag,
+likely RMS of 0.00616 (0.6%).
+(n.b.: 115 is a _tile number_, not a field number...)
+(n.b. a careful reading of the output from 2massread had this)
+
+  lbouma@phn12:/H/BIGPROJ/hatuser/2007_hatnet_phot/G115/BASE$ cat lcstat_tfa_merged.txt  | grep '0003266'
+  HAT-115-0003266 LC/HAT-115-0003266.tfalc 9445 102 11.77690 0.00616 3
+
+order of columns:
+number of points in light curve
+number of points excluded when calculated tfa stats
+2mass base magnitude (optical) -- do not trust (doesn't matter!, but good to 0.1mag)
+TFA-rms
+suggested aperture
+
+* Get all 9 LCs (different apertures + tfa vs epd vs raw. expect TFA to
+  have removed the EB variability that we should see...) for Kepler 16
+
+Well, field G257 has the LCs properly linked.
+However, field G115 does not. Unclear why, but note /H/4KRED/AP/4KAP_LC/115
+does not exist (however 257, for instance, does).
+
+Emailed Waqas + Gaspar to get more info.
+
+I-ii. Reframe the exercise: "let's look at an EB light curve" 
+==========
+
+Read: Paczynski, 2006, ASAS summary.
+Eclipsing Detached vs Eclipsing Contact vs Eclipsing SemiDetached
+
+Intro to contact binaries:
+Contact binaries := W UMa stars (UMa: ursa major. W: Argelander scheme, T
+Tauri, RR Lyrae, ZZ Ceti, etc.). They're in _physical contact_. Two components
+are tidally distorted -> continous brightness change.
+Lucy 1968: the envelope, shared btwn both components, has the same entropy,
+thus Teff ~ const over the surface. q != 1, so the more massive component
+generates more nuclear energy, which is distributed throughout the contact
+binary in a thick convective envelope. In this sense, contact binaries are more
+like "one star" than 2 separate stars. (B/c it's two cores sharing a convective
+envelope!!)
+M(R) for ZAMS stars is much steeper than for two Roche lobes. There is no
+stable equilibrium btwn the two stars w/ a common envelope. The system evolves
+thru a sequence of __relaxation oscillations__, with mass flowing from star A
+to B, then from B to A, etc. The cycle repeats on a KH timescale.
+In the thermal relaxation model, the binary oscillates btwn thermal contact, w/
+two eclipses of almost equal depth, and a semi-detached phase in which one
+eclipse is much deeper than another.
+
+It isinteresting that there is a controversy about thermalrelaxation
+oscillations in the W UMa systems. Some authors claim there are
+no such oscillations (Webbink 2003), while others claim that such
+oscillations exist (Quin 2003; Li, Han & Zhang 2004; Yakut &
+Eggleton 2005, and references therein)
+
+Dumb Q: could some contact binaries be star + HJ systems? Why not?
+How would we know? What would we look for?
+
+Close binaries: if there's a deep common envelope, then the binary is in
+thermal contact and the eclipses are almost equal depth.
+If the contact is shallow, or there's no physical contact, then Teff of the
+stars is different, and the two eclipses have different depths.
+
+"Theoretical models of relaxation oscillations indicate that the radii
+of the two components change relatively little throughout the cycle
+(Flannery 1976; Lucy 1976; Robertson & Eggleton 1977; Yakut &
+Eggleton 2005, and references therein)"
+
+...
+Waqas notes: the above was b/c of a stale NFS mount, which has now been
+remounted.
+Go back to original exercise (although Paczynski paper was an interesting
+aside).
+
+I-iii. Back to Kepler 16 did HAT observe any of the transits?
+==========
+* Get all 9 LCs (different apertures + tfa vs epd vs raw. expect TFA to
+  have removed the EB variability that we should see...) for Kepler 16
+
+HAT-115-0003266.
+
+On crispy, did:
+
+  > scp lbouma@phn12:/H/4KRED/AP/4KAP_LC/115/HAT-115-0003266* .
+
+Gives 3 LCs: tfalc, rlc, epdlc, and 1 file: epdlog.
+
+Can I use Waqas' astrobase to plot these LCs? What about run period searches?
+
+Reading through the source, looks like answer is: "yes, for sure, that's the
+entire point".
+--> cloend into /src/astrobase, installed.
+
+* Let's run thru astrobase/notebooks/lightcurve-work.ipynb first, to get an
+  idea for what's in the box.
+(after lunch)
+
+Tue 20 Dec 2016 01:19:11 PM EST
+
+* astrobase/notebooks/lightcurve-work.ipynb
+
+Ok, read through. Awesome. Can be easily paraphrased (probably) to our Kepler
+16 example.
+
+
+
+
+==========
+
+* Reproduce what Joel did (cross-match, run the HAT tools)
+
+* Did HAT observe any of the transits of the _other_ CBPs? (Most δ too small)
+
+
+FIRST-STEPS:
+* Pick a HAT field. Find what EBs are __known__ within that field (SIMBAD, ASAS
+  North/South, other surveys...)
+* Cross-correlating these EBs, use the already-computed BLS search and
+  phase-fold on the period. Can I independently extract the period and
+  ephemeris of the system?
+
+
+
+
+==============================
+SECOND-STEPS:
+Once we get to EBs that are not readily available in catalogs:
+* Select everything in a given HAT field with DSP > 9 (like a SNR, from BLS. 
+  See paper. Use the outputs from HAT's already-computed BLS search!)
+
+* ???
+* Have identified EBs w/ orbital & physical parameters
+
+
+
+
+==============================
+(Possible publishable outcomes:
+1 transiting CBP candidate isn't enough. you'd need confirmation, or more
+interesting things than "one-event candidate"
+(what if the SNR were super-high, a la microlensing events? Could an automated
+search for such events be done on K2/Kepler data? -> TESS data?)
+
+* BUT, "I looked at 20% of the northern sky, and here are 100 candidates,
+  likely with 99% false alarms, you go do the followup"
+OR
+* Here's a bonafide CBP detection
+OR
+* Here's an EB catalog, w/ injection-recovery too.
+* Here's an EB catalog, w/ statistics (observational paper, a la Paczynski 2006
+  "EBs in the All Sky Automated Survey catalog"
+OR
+* Here's a COROT-analysis reproduction paper, w/ injection-recovery to estimate
+  occurrence rate upper bounds.
