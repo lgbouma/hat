@@ -1,0 +1,141 @@
+==========
+00. Pick a HAT field. 
+==========
+199. (Chosen b/c it overlaps w/ Kepler field, which allows subsequent sanity
+checks).
+
+==========
+01. Get a list of all HAT ID objects in that field (on which BLS has already been
+run thru the pipeline) + find corresponding 2MASS IDs.
+==========
+/data/sqlitecurves/G199-sqlitecurves.csv (from Waqas)
+Has hatid, twomassid, lcfpath, ndet.
+
+==========
+02. Find what EBs are __known__ within that field from the Kepler EB catalog. 
+Also possible: SIMBAD, GCVS (latter two likely not).
+==========
+* Download Kepler EB catalog.
+  Want: twomassids, periods, 2mass magnitudes (as independent check on xmatch)
+* Crossmatch the twomassids.
+
+==========
+03. Cross-correlating these EBs, use the already-computed BLS search and
+phase-fold on the period. Independently extract the period and
+ephemeris of the system. Compare with Kepler EB catalog params.
+==========
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+============================================================
+
+SECOND-STEPS:
+Get to EBs that are not readily available in catalogs:
+* Select everything in given HAT field with DSP > 9 (like a SNR, from BLS. 
+  See paper. Use the outputs from HAT's already-computed BLS search!)
+
+  What to do to find eclipsing binaries:
+  * 0. pick a field. Find what EBs are __known__ within that field (SIMBAD, ASAS North/South,
+    other surveys...)
+  * 1. use the outputs from HAT's already-computed BLS search! (or something along those lines)
+
+  in e.g.:
+  G155/BLS
+  LOOK AT *.blsanal files! (don't need to rerun)
+  SAVES THE TOP 5 BLS PEAKS FROM THEIR BLS ANALYSIS.
+
+  frequency: in cycles/day (of that peak)
+  period: 1/freq
+  Q: fractional transit duration (Tdur/period)
+  epoch: at the _start_ of transit (not the center)
+  H: out-of-transit-magnitude for boxcar fit
+  L: in-transit-magnitude
+  Dip: H-L
+  RESsig: ?. RMS of residuals?
+  Dipsig: RMS of in-transit-points?
+
+  --> apply selection criteria based on BLSanal files!! 
+
+  Most useful columns:
+  SR: signal residue. Defined in the BLS paper (not that useful, but in the paper)
+    -> vertical axis on the bls spectrum
+  SNR (look for high SNR)
+  DSP: like a SNR. different defn.
+  DSPR: slightly different defintion
+
+  Another type of SNR (aside from phase-folding on the periods, then from phase-folded
+  LC):
+  * how pretty BLS spectrum is -- the peak height above scatter in BLS spectrum
+
+  **Where are the differences _documented_?**
+  In the pipelines!
+  Description of pipeline:
+
+  HATpipe/source
+    compiled. C++, fortran.
+    > lc/frontends directory: code for running BLS is here!
+      `blsspec.c` creates the BLS spectrum.
+    > lc/analyse
+      `blsanal.c` 
+      look for BLS_FIND_PEAKS, BLS_CALC_ANAL.
+
+  HATpipe/scripts:
+    shell, python, .. 
+
+  ** CHOOSE THINGS ABOVE DSP OF 9 IN BLS FILES **
+  (BLS picks up any variable thing -- astrophysical or not -- so there will be junk too)
+  --> then will be applying a bunch of other filters.
+
+  Things to check:
+  * is the scatter inside and outside of transits different?
+  * look for secondary eclipses (would indicate EBs)
+  * look for large ampltiude transit variations
+    (for transits, bad. for EBs, maybe good?)
+
+  ========================================
+  How to know what was done:
+  in the G115/scripts files.
+
+  Parts of the pipeline that identifies transit candidates from the BLS results:
+  1. fold_x_gb_xv_inspect4.sh: first script in search for transit candidates
+  2. doblsslcpostprocess.sh: second script run in transit candidate search
+
+  ------------------------------
+  So look at:
+  blsanalsum.txt: has the BLS results for _every object in the field_
+
+  gawk '$16 > 9 {print}' blsanalsum.txt | gawk '{print $1}' | sort | uniq | wc -l
+
+  Tells you: you have ~13k (out of 95k) that match this peak for a given field.
+
+
+
+ 
+
+* Have identified EBs w/ orbital & physical parameters
+

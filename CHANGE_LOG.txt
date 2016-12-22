@@ -1,0 +1,10 @@
+Thu 22 Dec 2016 12:42:53 PM EST
+
+Adding "src/no_sqlitecurve" scripts. This is from 161221, before it became
+clear that 2MASS IDs and associated LC lookup urls are already being
+agglomerated by WB.
+
+==============================
+Mon 19 Dec 2016 04:34:03 PM EST
+
+Made change log. Came back to project. Reorganized.

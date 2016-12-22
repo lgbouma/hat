@@ -6,3 +6,7 @@ field_*
 *head
 /src/astrobase*
 data/LCs/*
+data/HATpipe/*
+data/intermed/*
+data/catalogs/*
+data/HATinfo/*

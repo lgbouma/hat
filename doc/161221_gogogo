@@ -1,22 +1,172 @@
+N.b. "???" is a flag to ask a HAT guru.
 ==========
-Pick a HAT field. 
+00. Pick a HAT field. 
 ==========
 
 Semi-arbitrarily, choose field 257.
+Work locally in /hat/src (even ssh'ing data over. Working on HAT servers
+will be a pain b/c no root access)
+
+X Wrote 01_copy_fields_to_local.sh
+
+Some objects in /G257/BLS have both .blsanal and .blsspec. What are these?
+What are the difference? (Seems .blsanal has more of them -> for object ID,
+we'll focus on .blsanal)
+
+??? Ah. The things with .blsspec do not have any data in their .blsanal files.
+Presumably something went wrong in their processing... BLS failed for some
+reason?
+
+Uh... copying G257 over, I'm getting 26Gb of data (and then I ran out of local
+space). du -sh on the HAT server said it was 300Mb. wat.
+Hah - oh. There are symlinks to like... really big drives of stuff (that
+probably have their own symlinks to other drives, etc.
+
+Try: only copying the data I need to have locally. So, then contents of the
+G257/BLS/ directory. ls says 500Mb.
 
 ==========
-Get a list of all HAT ID objects in that field
-Find what EBs are __known__ within that field (SIMBAD, ASAS North/South, 
-other surveys...)
+01. Get a list of all HAT ID objects in that field (on which BLS has already been
+run thru the pipeline) + find corresponding 2MASS IDs.
+==========
+Try using HAT LC server API!
+No.
+Try using astrobase!
+Not immediately obvious. Might be in there, and Waqas certainly has a fast way,
+What about "2massread" from the hat servers?
+It's functional, i.e. 
+  > 2massread -g HAT-211-0000016 
+_works_, but IDK how (b/c no source, b/c gaspar is away) and it doesn't work 
+locally (needs some aspects of server environment)
+
+Options are:
+1) ask waqas + gaspar, likely get pinned into using the hatnet surver tool.
+2) just query the server.
+
+Try (2) first.
+Looks like the API isn't immediately pre-installed. We'll parse the html
+that Waqas gives at https://hatsurveys.org/lightcurves/object/HAT-211-0000016
+(and probably hit the query limit very quickly).
+
+Ok, did it. And yes, there's this hard cap of 5k queries. Damn.
+
+Ask Waqas:
+There's a secret apikey that allows unlimited queries and returns in json and
+is fast. (!) implemented. awesome.
+
+Also learned how to run virtualenvs on hn12:
+  source ~/py3venv/bin/activate
+(& pip for all local user installs)
+
+Ok, so have list, it's in data/intermed/02_G257_hatid_twomassid.out.
+
+Thu 22 Dec 2016 09:15:47 AM EST
+Now:
+==========
+Find what EBs are __known__ within that field (crossmatch with SIMBAD, ASAS 
+North/South, other surveys...)
 ==========
 
+ASAS-N has been observing since 2010, and no public DR yet.
+ASAS-3 Catalog of Variable Stars: >10k EBs.
 
+Downloaded ASAS-3 Catalog of Variable Stars from
+http://www.astrouw.edu.pl/asas/data/ACVS.1.1.gz, 16/12/22 9am.
+
+The columns are:
+    ASAS-ID - ASAS identification (coded from the star's RA_2000 and DEC_2000 in
+    the format: hhmmss+ddmm.m),
+    P - period in days (or characteristic time scale of variation for irregular
+    objects),
+    T_0 - epoch of minimum (for eclipsing) or maximum (for pulsating) brightness,
+    V_max - brightness at maximum,
+    Amp_V - amplitude of variation,
+    Type - one of the predefined classes: DSCT, RRC, RRAB, DCEP_FU, DCEP_FO, CW,
+    ACV, BCEP, MIRA and MISC, or its combination,
+    GCVS-ID - GCVS name,
+    GCVS-Type - GCVS variability type,
+    IR_12 - IRAS flux at 12 microns (listed as -2.5 log flux),
+    IR_25 - IRAS flux at 25 microns
+    IR_60 - IRAS flux at 60 microns
+    IR_100 - IRAS flux at 100 microns
+    J - 2MASS J photometry,
+    H - 2MASS H photometry,
+    K - 2MASS K photometry,
+    V-IR_12 - color index,
+    V-J - color index,
+    V-H - color index,
+    V-K - color index,
+    J-H - color index,
+    H-K - color index,
+
+Note that 2MASS IDs are hhmmss.ss+ddmmss.s in 2000. So ASAS-IDs are like 2MASS
+IDs, but lossier. >_<
+However, noting that they include 2MASS J,H,K photometry, a likely path to get
+the 2MASS IDs corresponding to the ASAS catalog is by doing a search based
+on ASAS-ID (since the 2MASS ID is the same for the first 6, and can convert the
+last  ones.
+
+HOWEVER, ASAS-3 observes the sky SOUTH OF 28deg declination. Presumably, this
+isn't great for HATN.
+
+Well...
+_Another_ approach would just be: replicate Hartman et al 2004. 
+
+??? (n.b. the web link to Table 1 of that paper is broken)
+
+Matching to known variables:
+Hartman+ 2004 said: do the GCVS -- Combined General Catalog of Variable Sources
+(Kholopov et al, 1998).
+"""
+We take a liberal
+matching radius of 3000 to allow for matches to variables that
+do not have 2MASS coordinates, as well as to allow for the
+possibility that some of our variables are matched to the incorrect
+2MASS counterpart. We also note that the positions in
+the GCVS may come from a wide variety of epochs, further
+necessitating the liberal matching radius
+"""
+
+Actually asking Waqas:
+"GCVS is fine, but it's a bit old, and only really complete for the brightest
+variable stars. HAT photometry might not actually be the best for them -- many
+would be too bright. Since this is in the north, try the Kepler EB catalog.
+Corresponding HAT fields are in a skymap to be emailed"
+
+Cool.
+Also, go thte catalog data from Hartman+ 2004.
+
+This is a __great__ sanity check.
+
+Ok. G199 was a so-so field.
+Try neighboring fields: G154, G155, G198.
+E.g., G154 should have Kepler EB catalog crossmatches.
+
+JK, Waqas has sqlitecurve files for G199. These are big csv files with: hatid,
+twomassid, lcfpath, and ndet. The "lcfpath" is a thing that can be used for
+retrieving hatlc's from astrobase, via
+http://data.hatsurveys.org/archive/{lcfpath}.
+
+In other words, these sqlitecurve files, which exist for ~30% of the northern
+sky surveyed by HATNet, make the code that I spent yesterday writing redundant
+/ not necessary for the case of these ~30% of fields.
+
+30% of the sky is certainly enough to make the fishing expedition worthwhile.
+
+Also, chatted with Gaspar. He would like to meet _weekly_ (although not yet on
+a clear schedule, let him know as it progresses). 
+
+----------
+OK, using G199.
+
+Create 161222_restart_with_sqlite.
+Move /src/01*, /src/02*, /src/03* scripts to /src/161221_no_sqlitecurves
 
 
 
 * Cross-correlating these EBs, use the already-computed BLS search and
   phase-fold on the period. Independently extract the period and
-  ephemeris of the system.
+  ephemeris of the system. Compare with Kepler EB catalog params.
 
 ==============================
 SECOND-STEPS:
