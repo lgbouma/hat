@@ -1,3 +1,32 @@
+Wed 04 Jan 2017 01:58:24 PM EST
+
+Updates from the holidays:
+
+02_retrieve_LCs_given_sqlitecurve_head.py:
+
+Given a sqlitecurve "header" (csv file with hatid, twomassid, lcfpath, and ndet
+from the HATNet/HATS data) 02_retrieve_LCs_given_sqlitecurve_head.py downloads
+the sqlitecurve to /data/LCs/ from HAT servers.
+
+03_find_LC_period_given_field.py:
+
+For any specified DSP limit and HAT field, this program:
+  i) copies BLS results from a run of HATpipe locally for processing
+  ii) parses the blsanalsum.txt output files into smaller text files that meet
+    the DSP limit. (And TODO: add other conditions to improve)
+  iii) Matches these files (at data/HATpipe/blsanalsums/cuts) 
+    (have HATID, ROWID, PERIOD, Q, EPOCH, SNR, DSP, NTR, OOTSIG.) with
+    sqlitecurve file-IDs. Then creates a DEBiL-readable LC file with format:
+    (time, mag, err). Takes ~1 sec per LC.
+    Also creates a "DEBiL header" (a file required for DEBiL to read many LCs,
+    that contains the extracted period-guesses)
+  
+UTIL_plot_DEBiL_LCs.py:
+Given a field and DSP limit, plot the phased magnitude series (TODO: verify
+magnitude normalization btwn observations works).
+
+
+==============================
 Thu 22 Dec 2016 12:42:53 PM EST
 
 Adding "src/no_sqlitecurve" scripts. This is from 161221, before it became

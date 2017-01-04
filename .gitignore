@@ -10,3 +10,6 @@ data/HATpipe/*
 data/intermed/*
 data/catalogs/*
 data/HATinfo/*
+data/DEBiL_LCs/*
+data/DEBiL_heads/*
+results/prelim*

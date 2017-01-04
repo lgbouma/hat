@@ -2,17 +2,160 @@
 00. Pick a HAT field. 
 ==========
 199. (Chosen b/c it overlaps w/ Kepler field, which allows subsequent sanity
-checks).
+checks-- notably with Hartman+ 2004, and with the Kepler EB catalog).
+See relevant map of HAT fields on sky.
 
 ==========
 01. Get a list of all HAT ID objects in that field (on which BLS has already been
 run thru the pipeline) + find corresponding 2MASS IDs.
 ==========
-/data/sqlitecurves/G199-sqlitecurves.csv (from Waqas)
+From Waqas: /data/sqlitecurves/G199-sqlitecurves.csv
 Has hatid, twomassid, lcfpath, ndet.
+(n.b. we're _presuming_ BLS has already been run for these)
 
 ==========
-02. Find what EBs are __known__ within that field from the Kepler EB catalog. 
+02. Retrive LCs for these HAT objects. (expected size?)
+==========
+Only keep those with ndet>100 (i.e. over 100 data points).
+Waqas says: read them using hatlc from astrobase, where the url to hit is:
+http://data.hatsurveys.org/archive/{lcfpath}
+For the url hit, try either:
+1) python requests should have a direct "download file" option, OR
+2) subprocess a wget.
+
+Wrote it as:
+02_retrive_LCs_given_sqlitecurve_head.py
+
+Uh... slightly worried that this'll be too much data. (>_<. Really need to wipe
+my working hardrive. Or get better mounts. Or something. 4000 LCs is already
+5Gb. I think the field has like... 10s of thousands? Not sure...)
+
+Eh. 10k LCs <-> 14Gb.
+Deleted mesa grid_4 and grid_5. Also MATLAB (freed up 30Gb, and already had
+~30Gb free. So I can store ~40k LCs). Waiting.......
+Also deleted MESA grid grid_6, grid_tau_100_tables, and grid_tau_100_Choi_Z.
+(N.b. the above clears up like 80Gb of disk space but it's seriously bad
+practice. Can use the ~Tb hard-drive the TESS data is currently on, and AVOID
+doing this in the future [b/c yes, dropbox is evidently too slow])
+
+(ASAP, e.g. during grading, would be really a good time to dropbox sync back 
+on the TESS simulation data, [including the currently hosted extended mission 
+catalogs as well as the primary mission catalogs, b/c both of these are 
+web-hosted -> no local copy needed]
+as well as the MESA data. the latter requires answering Choi's point)
+
+have ~80Gb free on harddrive when at 21k LCs downloaded, and 22Gb currently in
+/data/LCs/G199.
+
+Done at 51.5k LCs, which is 34Gb.
+
+From each sqlite curve, we want:
+
+hatid = HAT-199-0087236; twomassid = 19523520+3938106
+ndet = 79
+
+Using aperture 000 for now. Might want to switch to using "best" recommended
+aperture later.
+jmag = 12.838; hmag = 12.591; kmag = 12.467; bmag = None; vmag = None
+sdssg = None; sdssr = None; sdssi = None
+
+000 - rjd - time of observation in Reduced Julian date (JD = 2400000.0 + RJD)
+001 - bjd - time of observation in Baryocentric Julian date (note: this is
+BJD_TDB)
+002 - net - network of telescopes observing this target
+018 - xcc - x coordinate on CCD chip
+019 - ycc - y coordinate on CCD chip
+034 - arm_000 - aperture photometry fit magnitude in aperture 000
+037 - aep_000 - aperture photometry EPD magnitude in aperture 000
+025 - aim_000 - aperture photometry raw instrumental magnitude in aperture 000
+026 - aie_000 - aperture photometry raw instrumental mag error in aperture 000
+027 - aiq_000 - aperture photometry raw instrumental mag quality flag for
+aperture 000
+
+These can be read like:
+
+  > from astrobase import hatlc
+  > 
+  > LC_path = '../data/LCs/'
+  > field = 'G199'+'/'
+  > 
+  > this_sqlite = 'HAT-199-0087236-V0-DR0-hatlc.sqlite.gz'
+  > 
+  > lcd, msg = hatlc.read_and_filter_sqlitecurve(LC_path+field+this_sqlite)
+
+==========
+03. Find the LC period (if it has one). Specifically, this means: look at the
+five BLS peaks for each LC. (From what's already on phn12 in the blsanal
+files). If DSP>CUTOFF (where CUTOFF could be, say, 10), then we saw that
+particular LC has a strong enough periodic component to make it past the first
+cut.
+==========
+-----
+Be clear about the cut model. Here we're first finding the LC period
+(periodogram). Then we throw out anything that's not periodic (non-variable
+stars, novae, CVs, spotted stars, microlensed stars, etc.)
+We'll be left with maybe ~10k LCs with a strong periodicity (from this field
+alone).
+The plan is to then run a simple/fast/automated eclipsing binary model fitting
+code (DEBiL, written/distribd by Jonathan Devor) on that set to filter out
+Non-binary periodic stars (stars w/ stable spots, pulsating stars, etc.)
+We're looking for detached binaries.
+-----
+OK, we would ideally have something like "blsanalsum.txt" done. However, for
+field 199, "there are no LCs for this field". "So I need to look at neighboring
+fields"
+
+??? Wait, then how were these sqlitecurves reduced? (If not from stars in the 
+199 field.)
+Eh, neglecting where they _came_ from, indeed the BLS results are in the
+neighboring directories.
+
+Fields that are nearest-neighbors to 199:
+198,155,154
+Next-nearest:
+197,153,115,292,242
+
+Note that /H/BIGPROJ/hatuser/2007_hatnet_phot/G1* fields have different _types_
+of *blsanalsum* files.
+Can likley ignore.
+
+HOWEVER, it's not clear what the columns in the given blsanalsum.txt files
+MEAN. This is important if we're going to get the aperture right...
+
+Ah, and Waqas mentioned a detached EB fitting code that "everyone in this
+subfield uses" now... (& ya, it's a python wrapper)
+JKTEBOP.
+
+
+----------
+Fri Dec 23 15:31:20 2016
+Have Joel's recs...
+
+
+> likely more useful in
+
+blsanalsum.txt: has the BLS results for _every object in the field_
+
+gawk '$16 > 9 {print}' blsanalsum.txt | gawk '{print $1}' | sort | uniq | wc -l
+
+Tells you: you have ~13k (out of 95k) that match this peak for a given field.
+
+
+==========
+0X. Look at Jonathon Devor's DEBiL (Detached Eclipsing Binary Light curve
+fitter) code. His thesis directly addresses problem #1, which is: identify and
+obtain reasonable parameters for EBs in a large database.
+==========
+
+==========
+0X. Look at JKTEBOP (Southworth). This is a code for more detailed fitting of
+detached EB LCs.
+==========
+
+
+
+==========
+0X. Find what EBs are __known__ within that field from the Kepler EB catalog. 
 Also possible: SIMBAD, GCVS (latter two likely not).
 ==========
 * Download Kepler EB catalog.
@@ -20,7 +163,7 @@ Also possible: SIMBAD, GCVS (latter two likely not).
 * Crossmatch the twomassids.
 
 ==========
-03. Cross-correlating these EBs, use the already-computed BLS search and
+0X. Cross-correlating these EBs, use the already-computed BLS search and
 phase-fold on the period. Independently extract the period and
 ephemeris of the system. Compare with Kepler EB catalog params.
 ==========
@@ -139,3 +282,6 @@ Get to EBs that are not readily available in catalogs:
 
 * Have identified EBs w/ orbital & physical parameters
 
+Long period transiting planet search a la DFM style might be a necessary approach for
+a transit search for CBPs in HAT data (after preliminary cuts).
+Same in TESS data.

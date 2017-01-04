@@ -1,0 +1,251 @@
+==========
+04. Run DEBiL on the /data/DEBiL_LCs/G??? LCs.
+==========
+Consider Jonathon Devor's DEBiL (Detached Eclipsing Binary Light curve
+fitter) code. His thesis directly addresses problem #1, which is: identify and
+obtain reasonable parameters for EBs in a large database.
+
+(follow readme in DEBiL source, and maybe instructions in period-finder
+program)
+
+* symlinked release notes (which I think are quite useful)
+* Need to put blsanalsums/cuts PERIODS in their own text file for DEBiL input
+  files to be happy.
+-> do this in 03_* of /hat/src/ (it's a necessary step for DEBiL to be able to
+    read things)
+* turn this list into a LC-writer (e.g., read DEBiL_LCs and DEBiL_heads, fold
+  appropriately, e.g., with astrobase)
+-> wrote UTIL_plot_DEBiL_LCs.py to do this
+
+* try running a single EB LC thru DEBiL
+  -> did. The output was:
+
+>  luke@crispy:~/Dropbox/proj/hat/src/DEBiL/src$ ./debil input_list.txt il.out il.err
+>   Using settings: 
+>    iterations = 10000
+>    quadratic limb darkening params:  a=0.354200  b=0.193900
+>  HAT-199-0058391.txt   P=1.073186
+>  luke@crispy:~/Dropbox/proj/hat/src/DEBiL/src$ 
+>  luke@crispy:~/Dropbox/proj/hat/src/DEBiL/src$ 
+>  luke@crispy:~/Dropbox/proj/hat/src/DEBiL/src$ lh
+>  total 1.1M
+>  -rw-rw-r-- 1 luke luke  153 Dec 28 20:37 il.err
+>  -rw-rw-r-- 1 luke luke    0 Dec 28 20:35 il.out
+>  -rwxrwxr-x 1 luke luke  64K Dec 28 20:34 debil
+>  drwxrwxr-x 2 luke luke 4.0K Dec 28 20:25 inputs
+>  -rw-rw-r-- 1 luke luke   30 Dec 28 20:24 input_list.txt
+>  -rw-rw-r-- 1 luke luke 359K Dec 28 20:18 HAT-199-0058391.txt
+>  drwxrwxr-x 2 luke luke 4.0K Dec 28 20:17 outputs
+>  drwxr--r-- 4 luke luke 4.0K Dec 28 20:16 compiled
+>  drwxr--r-- 2 luke luke 4.0K Dec 28 20:16 OGLE
+>  -rwxrwxr-x 1 luke luke  18K Dec 28 20:16 periodS2
+>  drwxr--r-- 2 luke luke 4.0K Dec 28 20:16 utils
+>  -rwxr--r-- 1 luke luke 153K Dec 28 20:16 AAVSO.zip
+>  -rwxr--r-- 1 luke luke  87K Dec 28 20:16 debil.c
+>  -rwxr--r-- 1 luke luke  87K Dec 28 20:16 debil_noDoublePeriod.c
+>  -rwxr--r-- 1 luke luke  85K Dec 28 20:16 debil_noEcc.c
+>  -rwxr--r-- 1 luke luke  85K Dec 28 20:16 debil_noEcc_noDoublePeriod.c
+>  -rwxr--r-- 1 luke luke  14K Dec 28 20:16 periodS2.c
+>  -rwxr--r-- 1 luke luke  12K Dec 28 20:16 periodS2list.c
+>  -rwxr--r-- 1 luke luke 2.4K Dec 28 20:16 pipeline.txt
+>  -rwxr--r-- 1 luke luke 3.8K Dec 28 20:16 Readme.txt
+>  luke@crispy:~/Dropbox/proj/hat/src/DEBiL/src$ cat il.err 
+>  HAT-199-0058391.txt: [Warning] getSin_i() - Invalid slope
+>  HAT-199-0058391.txt: [Warning] printFinalResult() - One of the fitted
+>  parameters is Inf or NaN
+
+* i.e. it couldn't fit this one. (Even though the primary and second eclipses
+  can be seen visually).
+Try:
+
+HAT-199-0063712.
+Has a _beautiful_ LC. Primary and secondary eclipses visually obvious.
+
+Trying to run DEBiL:
+
+> (sci) luke@crispy:~/Dropbox/proj/hat/src/DEBiL/src$ cat test_input.txt 
+> HAT-199-0063712.txt 1.073148
+> (sci) luke@crispy:~/Dropbox/proj/hat/src/DEBiL/src$ head HAT-199-0063712.txt 
+> 53199.0125499 13.422880 0.021880
+> 53199.8867744 13.417320 0.038240
+> 53213.8220782 12.909020 0.031490
+> 53213.8259949 12.966790 0.034260
+> 53213.8298913 12.897360 0.030800
+> 53213.8338067 12.956180 0.033700
+> 53213.8378324 12.961390 0.030080
+> 53213.8417164 12.934950 0.031630
+> 53213.8456341 13.000580 0.030750
+> 53213.8495135 13.027720 0.035370
+> (sci) luke@crispy:~/Dropbox/proj/hat/src/DEBiL/src$ ./debil test_input.txt test.out test.err
+>  Using settings: 
+>   iterations = 10000
+>   quadratic limb darkening params:  a=0.354200  b=0.193900
+> HAT-199-0063712.txt   P=1.073148
+> (sci) luke@crispy:~/Dropbox/proj/hat/src/DEBiL/src$ cat test.err 
+> HAT-199-0063712.txt: [Warning] main() - No secondary dip- try double period (1)
+> HAT-199-0063712.txt: [ERROR] main() - No secondary dip- double period was tried and failed (1)
+
+What about HAT-199-0076100?
+Secondary eclipse is less visually obvious... but bigger period -> better
+chances
+
+-> rerun /src/03_*, with DSP_lim of 30. Get more things to visually parse...
+Somewhat unsurprisingly, this doesn't give too many better candidates.
+
+0058391?
+
+-> might want to get around to contacting J. Devor, else use a different
+(actually maintained, actually broadly tested) fitter.
+  -> e.g., something with emcee? (it's 8 parameters. Just need a batman-esque
+  model creator)
+
+Well: HAT-199-0076100.txt 2.404380, gives _some_ output.
+
+* What is the output format?
+
+N.b. on LC flags:
+'G' good, 'C' caution, 'X' bad
+
+LEFTOFF
+
+==========
+==========
+
+
+
+
+
+==========
+0X. Look at JKTEBOP (Southworth). This is a code for more detailed fitting of
+detached EB LCs.
+==========
+
+
+
+==========
+0X. Find what EBs are __known__ within that field from the Kepler EB catalog. 
+Also possible: SIMBAD, GCVS (latter two likely not).
+==========
+* Download Kepler EB catalog.
+  Want: twomassids, periods, 2mass magnitudes (as independent check on xmatch)
+* Crossmatch the twomassids.
+
+==========
+0X. Cross-correlating these EBs, use the already-computed BLS search and
+phase-fold on the period. Independently extract the period and
+ephemeris of the system. Compare with Kepler EB catalog params.
+==========
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+============================================================
+
+SECOND-STEPS:
+Get to EBs that are not readily available in catalogs:
+* Select everything in given HAT field with DSP > 9 (like a SNR, from BLS. 
+  See paper. Use the outputs from HAT's already-computed BLS search!)
+
+  What to do to find eclipsing binaries:
+  * 0. pick a field. Find what EBs are __known__ within that field (SIMBAD, ASAS North/South,
+    other surveys...)
+  * 1. use the outputs from HAT's already-computed BLS search! (or something along those lines)
+
+  in e.g.:
+  G155/BLS
+  LOOK AT *.blsanal files! (don't need to rerun)
+  SAVES THE TOP 5 BLS PEAKS FROM THEIR BLS ANALYSIS.
+
+  frequency: in cycles/day (of that peak)
+  period: 1/freq
+  Q: fractional transit duration (Tdur/period)
+  epoch: at the _start_ of transit (not the center)
+  H: out-of-transit-magnitude for boxcar fit
+  L: in-transit-magnitude
+  Dip: H-L
+  RESsig: ?. RMS of residuals?
+  Dipsig: RMS of in-transit-points?
+
+  --> apply selection criteria based on BLSanal files!! 
+
+  Most useful columns:
+  SR: signal residue. Defined in the BLS paper (not that useful, but in the paper)
+    -> vertical axis on the bls spectrum
+  SNR (look for high SNR)
+  DSP: like a SNR. different defn.
+  DSPR: slightly different defintion
+
+  Another type of SNR (aside from phase-folding on the periods, then from phase-folded
+  LC):
+  * how pretty BLS spectrum is -- the peak height above scatter in BLS spectrum
+
+  **Where are the differences _documented_?**
+  In the pipelines!
+  Description of pipeline:
+
+  HATpipe/source
+    compiled. C++, fortran.
+    > lc/frontends directory: code for running BLS is here!
+      `blsspec.c` creates the BLS spectrum.
+    > lc/analyse
+      `blsanal.c` 
+      look for BLS_FIND_PEAKS, BLS_CALC_ANAL.
+
+  HATpipe/scripts:
+    shell, python, .. 
+
+  ** CHOOSE THINGS ABOVE DSP OF 9 IN BLS FILES **
+  (BLS picks up any variable thing -- astrophysical or not -- so there will be junk too)
+  --> then will be applying a bunch of other filters.
+
+  Things to check:
+  * is the scatter inside and outside of transits different?
+  * look for secondary eclipses (would indicate EBs)
+  * look for large ampltiude transit variations
+    (for transits, bad. for EBs, maybe good?)
+
+  ========================================
+  How to know what was done:
+  in the G115/scripts files.
+
+  Parts of the pipeline that identifies transit candidates from the BLS results:
+  1. fold_x_gb_xv_inspect4.sh: first script in search for transit candidates
+  2. doblsslcpostprocess.sh: second script run in transit candidate search
+
+  ------------------------------
+  So look at:
+  blsanalsum.txt: has the BLS results for _every object in the field_
+
+  gawk '$16 > 9 {print}' blsanalsum.txt | gawk '{print $1}' | sort | uniq | wc -l
+
+  Tells you: you have ~13k (out of 95k) that match this peak for a given field.
+
+
+
+ 
+
+* Have identified EBs w/ orbital & physical parameters
+
+Long period transiting planet search a la DFM style might be a necessary approach for
+a transit search for CBPs in HAT data (after preliminary cuts).
+Same in TESS data.

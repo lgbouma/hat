@@ -1,0 +1,237 @@
+                 DEBiL Release Notes  (ver. 1.1)
+                =================================
+
+
+Input files:
+============
+
+Light curve format (3-column):
+------------------------------
+Column description:
+1. float   Time stamp 
+2. float   Magnitude 
+3. float   Magnitude uncertainty (must be positive)
+
+Examples:
+535.826113   -1.000  -1.000
+541.870983   17.009   0.028
+550.862006   17.036   0.012
+
+
+
+Light curve OGLE-format:
+------------------------
+Currently we incorporate the OGLE light curve format.
+Column description:
+1. float   Time stamp (must be positive)
+2. float   Difference flux (ignored)
+3. float   Flux uncertainty (ignored)
+4. float   I-band magnitude (must be positive)
+5. float   I-band magnitude uncertainty (must be positive)
+6. int     Flags (ignored)
+
+Examples:
+535.826113     -99.00    -99.00   -1.000  -1.000   6147
+541.870983       9.97     10.26   17.009   0.028      0
+550.862006       0.28      4.32   17.036   0.012      0
+
+
+Note:
+If one of the time, magnitude or magnitude uncertainty are not positive values
+that entry will be considered invalid and ignored.
+As long as they remain positive you may normalize the time an magnitudes.
+This means that you can use arbitrary units and zero point (i.e. multiply
+by and/or add a constant). Obviously, the given period and the output
+results will be transformed in the same manner.
+
+
+
+Input list format:
+------------------
+
+Column description:
+1. string   File name (with full path if not in local directory)
+2. float    Period (must be positive)
+
+Examples:
+c10_1062.dat 0.383549
+c10_101.dat 0.708809
+c46_1097.dat 3.459195
+
+
+
+
+Output files:
+=============
+
+Results list format:
+--------------------
+
+Column description:
+1.  string  File name (with full path if not in local directory)
+2.  float   Period (in days)
+3.  float   Orbital eccentricity
+4.  float   Absolute uncertainty in (3)
+5.  float   Radius of large star (in units of semimajor axis)
+6.  float   Absolute uncertainty in (5)
+7.  float   Radius of small star (in units of semimajor axis)
+8.  float   Absolute uncertainty in (7)
+9.  float   Brightness of large star (magnitudes)
+10. float   Absolute uncertainty in (9)
+11. float   Brightness of small star (magnitudes)
+12. float   Absolute uncertainty in (11)
+13. float   Sine of inclination, sin(i)
+14. float   Absolute uncertainty in (13)
+15. float   Phased epoch of periastron
+16. float   Absolute uncertainty in (15)
+17. float   Argument of periastron (in degrees)
+18. float   Absolute uncertainty in (17)
+19. int     Number of used data points (not including outliers)
+20. int     Number of outliers
+21. float   Reduced chi squared of the best-fit model
+22. float   Reduced chi squared of the average value
+23. float   Reduced chi squared of a second order spline (parabolic fit within a sliding window)
+24. float   Reduced chi squared of the sinusoidal best-fit
+25. float   Significance of the secondary dip depth (in sigma)
+26. float   Significance of the hump height (at midpoint between dips, in sigma)
+27. float   Significance of the hump difference between the two humps (in sigma)
+28. float   Waviness (see paper appendix for definition)
+29. float   Scatter score (see paper appendix for definition)
+30. float   Mean density (in grams per cm^3 ; see paper appendix for definition)
+31. float   Max density (in grams per cm^3 ; see paper appendix for definition)
+
+Note:
+See manual for an explanation on the uncertainty estimates
+
+Example:
+c20_2677.dat 1.098476 0.000163 0.003633 0.452416 0.059015 0.343221 0.245119 17.128021 0.734478 19.375211 1.625326 0.899221 0.054401 0.673887 3.408928 253.064827 1227.214154 235 0 0.891739 9.429494 0.690457 6.385758 1.868144 0.448068 0.014719 -0.015520 -0.006924 0.117927 0.388016
+
+
+
+Error list format:
+------------------
+
+Column description:
+1. string   Light curve file name
+2. string   [ERROR] = fatal error: the light curve could not be analyzed
+            [Warning] = non-fatal error: the light curve analysis continued
+3. string   Name of method/function that produces the error message
+4. string   Error message description
+
+Examples:
+lacy03V.txt: [ERROR] main() - Not enough memory
+c20_2677.dat: [Warning] main() - Secondary dip is too small- try double period (2)
+c20_2677.dat: [Warning] runFit() - greedyFit() didn't converge
+c20_2677.dat: [Warning] printFinalResult() - Couldn't write a data or fit file
+
+
+
+Full OGLE-database format:
+--------------------------
+[After both color and probablity information have been added]
+
+Column description:
+1.  int     OGLE II bulge field number
+2.  int     Light curve number (unique to field)
+3.  float   Period (in days)
+4.  float   Orbital eccentricity
+5.  float   Absolute uncertainty in (4)
+6.  float   Radius of large star (in units of semimajor axis)
+7.  float   Absolute uncertainty in (6)
+8.  float   Radius of small star (in units of semimajor axis)
+9.  float   Absolute uncertainty in (8)
+10. float   Brightness of large star (I-band magnitudes)
+11. float   Absolute uncertainty in (10)
+12. float   Brightness of small star (I-band magnitudes)
+13. float   Absolute uncertainty in (12)
+14. float   Sine of inclination, sin(i)
+15. float   Absolute uncertainty in (14)
+16. float   Phased epoch of periastron
+17. float   Absolute uncertainty in (16)
+18. float   Argument of periastron (in degrees)
+19. float   Absolute uncertainty in (18)
+20. int     Number of used data points (not including outliers)
+21. int     Number of outliers
+22. float   Reduced chi squared of the best-fit model
+23. float   Reduced chi squared of the average value
+24. float   Chi2 relative to a second order spline (parabolic fit within a sliding window)
+25. float   Reduced chi squared of the sinusoidal best-fit
+26. float   Fitness score (position of (22) between (23) and (24) ; see paper appendix for definition)
+27. float   Significance of the secondary dip depth (in sigma)
+28. float   Significance of the hump height (at midpoint between dips, in sigma)
+29. float   Significance of the hump difference between the two humps (in sigma)
+30. float   Waviness (see paper appendix for definition)
+31. float   Scatter score (see paper appendix for definition)
+32. float   Mean density (in grams per cm^3 ; see paper appendix for definition)
+33. float   Max density (in grams per cm^3 ; see paper appendix for definition)
+34. float   Extinction corrected brightness of large star (I-band magnitudes)
+35. float   Extinction corrected brightness of small star (I-band magnitudes))
+36. float   Extinction corrected total binary brightness (I-band magnitudes)
+37. float   Extinction corrected I-band magnitude, from Udalski's catalog - similar to (36)
+38. float   Extinction corrected color (V-I), from Udalski's catalog
+39. float   Uncorrected I-band magnitude
+40. float   Uncorrected color (V-I)
+41. float   Absolute uncertainty in V-band magnitude
+42. float   Absolute uncertainty in I-band magnitude
+43. string  Right-ascension (RA)
+44. string  Declination (Dec)
+45. float   Inverse of geometric probability
+
+Example:
+1 12 0.747790 0.267985 0.133675 0.393857 0.127797 0.204039 0.082915 17.821654 1.349128 19.271900 1.056175 1.000000 0.111581 0.133127 0.503087 175.078900 181.111374 147 0 11.982906 20.172336 2.788556 20.379861 0.471096 2.197998 0.390060 2.700892 0.624679 0.675990 0.486449 3.985190 17.044654 18.494900 16.791174 16.804000 0.686000 17.581000 1.492000 0.159000 0.138000 18:02:07.07 -30:25:16.3 1.307605
+
+
+
+
+Alternative Limb darkening coefficients:
+========================================
+
+Solar coefficients for various filters  (Claret 2003, with log(g)=4.5 and Teff=5800)
+
+Filter U:  a=0.7534  b=-0.0039
+Filter B:  a=0.6885  b=0.1069
+Filter V:  a=0.5347  b=0.1792
+Filter R:  a=0.4465  b=0.1855
+Filter I:  a=0.3542  b=0.1939
+Filter J:  a=0.2091  b=0.2292
+
+Filter u:  a=0.8215  b=-0.0724
+Filter v:  a=0.8090  b=0.0017
+Filter b:  a=0.6519  b=0.1500
+Filter y:  a=0.5454  b=0.1710
+
+Filter GU:  a=0.7887  b=-0.0315
+Filter GB1: a=0.7932  b=-0.0036
+Filter GB:  a=0.7223  b=0.0695
+Filter GB2: a=0.6937  b=0.0732
+Filter GV1: a=0.5319  b=0.1774
+Filter GV:  a=0.5089  b=0.1865
+Filter GG:  a=0.5056  b=0.1908
+
+Filter WW:  a=0.9608  b=-0.1852
+Filter WU:  a=0.7769  b=-0.0192
+Filter WL:  a=0.8141  b=-0.0483
+
+
+
+
+Contact info:
+=============
+
+Please contact Jonathan Devor (jdevor@cfa.harvard.edu)
+if you encounter any of the following problems:
+
+- Found a major bug
+- Found a minor bug that is easy to fix (e.g. a misspelling)
+- Questions on an issue NOT covered by these release notes, the manual or the code documentation
+- Want general guidance on how to make minor changes to the code yourself (e.g. change a file format)
+- Fan mail
+
+
+Enjoy,
+Jonathan Devor (developer)
+
+
+Harvard-Smithsonian center for Astrophysics (CfA)                               
+60 Garden St. Cambridge, MA 02138 
+

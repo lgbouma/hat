@@ -1,0 +1,327 @@
+==========
+03. Find the LC period (if it has one). Specifically, this means: look at the
+five BLS peaks for each LC. (From what's already on phn12 in the blsanal
+files). If DSP>CUTOFF (where CUTOFF could be, say, 10), then we saw that
+particular LC has a strong enough periodic component to make it past the first
+cut.
+==========
+-----
+Be clear about the cut model. Here we're first finding the LC period
+(periodogram). Then we throw out anything that's not periodic (non-variable
+stars, novae, CVs, spotted stars, microlensed stars, etc.)
+We'll be left with maybe ~10k LCs with a strong periodicity (from this field
+alone).
+The plan is to then run a simple/fast/automated eclipsing binary model fitting
+code (DEBiL, written/distribd by Jonathan Devor) on that set to filter out
+Non-binary periodic stars (stars w/ stable spots, pulsating stars, etc.)
+We're looking for detached binaries.
+-----
+OK, we would ideally have something like "blsanalsum.txt" done. However, for
+field 199, "there are no LCs for this field". "So I need to look at neighboring
+fields" (WB)
+
+??? Wait, then how were these sqlitecurves reduced? (If not from stars in the 
+199 field.)
+Eh, neglecting where they _came_ from, indeed the BLS results are in the
+neighboring directories.
+
+Fields that are nearest-neighbors to 199:
+198,155,154
+Next-nearest:
+197,153,115,292,242
+
+Note that /H/BIGPROJ/hatuser/2007_hatnet_phot/G??? fields have different _types_
+of *blsanalsum* files.
+Can likley ignore.
+
+From email w/ Hartman:
+> Yes use the blsanalsum.txt file (or the .blsanal files in the BLS
+subdirectory directly), the other variants have had various selections
+applied to them.  Since ~2008 the summary blsanalsum.txt files are produced
+in the Cand subdirectory, discrepancies are for much older fields.
+
+HOWEVER, it's not clear what the columns in the given blsanalsum.txt files
+MEAN. This is important if we're going to get the aperture right...
+
+> Just TFA, best aperture.
+
+Column contents (of blsanalsum.txt):
+HATID     # HAT-???-123-4567890, unique ID for star
+ROWID     # of the .blsanal file (integer 1-5, in order of peak preference)
+FREQ      # frequence of the peak. [1/day]
+PERIOD    # phase-folded period corresponding to peak. [day]
+Q         # transit length in units of [period]
+EPOCH     # time in the LC BLS finds a transit
+H         # magnitude (for blsanalsum, TFA best aperture) out-of-transit
+L         # magnitude in transit
+DIP       # L-H
+RESSIG    # ??. RMS of residuals out-of-transit (over some timescale??)
+DIPSIG    # ??. RMS of residuals in-transit??
+SR        # Signal residue ("power" in BLS, Eq 5 of Kovacs+ 2002)
+SRSHIFT   # ... to be contd
+SRSIG     #   
+SNR       # In transit. >~7 typical for good resolution.
+DSP       # Like a SNR. Different defn. JH rec >~9 for EB ID.
+DSPG      #
+FREQLOW   # Lowest freq (longest period) in search
+FREQHIG   # Highest freq (shortest period) in search
+LOGPROB   # 
+PEAKAREA  #  
+PEAKMEAN  #
+PEAKDEV   #   
+LOMBLOG   #    
+NTR       #
+NTRP      # 
+NTV       #
+GEZADSP   # 
+QGRESS    #  
+OOTSIG    #   
+TRSIG     #
+OOTDFTF   # 
+OOTDFTA   #
+
+
+Ah, and Waqas mentioned a detached EB fitting code that "everyone in this
+subfield uses" now... (& ya, it's a python wrapper)
+JKTEBOP.
+
+> likely more useful in later more intensive modeling stage.
+
+----------
+Mon Dec 26 22:03:53 2016
+
+! Get to parsing HATN blsanalsum.txt files:
+
+==========
+03. Find the LC period (if it has one). Specifically, this means: look at the
+five BLS peaks for each LC. (From what's already on phn12 in the blsanal
+files). If DSP>CUTOFF (where CUTOFF could be, say, 10), then we saw that
+particular LC has a strong enough periodic component to make it past the first
+cut.
+==========
+
+Tue Dec 27 10:35:39 2016
+
+03_find_LC_period_given_field.py:
+* implemented function to copy all the right blsanalsum.txt files from
+  neighboring fields
+* want function that parses, and gives:
+  * names of DSP>~10 fields. Their BLS params (epoch, H/L, q, period, and
+    significance (SNR &/ DSP)
+
+blsanalsum columns:
+
+1.HATID       2.ROWID   3.FREQ    4.PERIOD   5.Q      6.EPOCH      7.H
+==============================================================================
+HAT-154-0000041 1      0.1487351  6.7233625 0.0293 55800.0945289  7.5246
+
+8.L      9.DIP 10.RESSIG 11.DIPSIG   12.SR   13.SRSHIFT   14.SRSIG    15.SNR
+==============================================================================
+7.5397  0.0151 4.10e-02 2.13e-03 7.7035e-06 7.7035e-06 7.2918e-07 1.0565e+01
+
+16.DSP     DSPG    FREQLOW    FREQHIGH   LOGPROB    PEAKAREA   PEAKMEAN
+==============================================================================
+7.102   0.370  0.1481741  0.1490982 -8.6006e-02 3.4175e-02 1.4873e-01
+
+PEAKDEV     LOMBLOG    25.NTR   NTRP  NTV   GEZADSP QGRESS 30.OOTSIG   TRSIG
+==============================================================================
+2.3930e-05 -2.32e-01      6  446.0  93300   0.370 0.0019 4.08e-02 4.44e-02
+
+OOTDFTF  OOTDFTA
+==============================================================================
+6.7551    0.0015
+
+So in a list:
+
+['HATID', 'ROWID', 'FREQ', 'PERIOD', 'Q', 'EPOCH', 'H', 'L', 'DIP', 'RESSIG',
+'DIPSIG','SR','SRSHIFT','SRSIG','SNR','DSP','DSPG','FREQLOW','FREQHIGH','LOGPROB',
+'PEAKAREA','PEAKMEAN','PEAKDEV','LOMBLOG','NTR','NTRP','NTV','GEZADSP','QGRESS',
+'OOTSIG','TRSIG','OOTDFTF','OOTDFTA']
+
+How to parse...
+A given blsanalsum.txt has ~400k entries. (5 rows per object, so ~80k objects).
+Doing astropy.ascii.read works, but is slow b/c it's reading many things that
+it doesn't need.
+
+bash scripting it might really be the thing to do.
+
+(OR: if np.genfromtxt works...)
+
+ahhhh. Beginning to think likely best case is to learn bash to deal with it
+(reasonably optimized?)
+
+PICKUPHERE
+Ok, a DSP of 20 gives ~2000 unique objects in a single "healpix tile" field.
+So leave it at that, and figure out ur bash one-liners.
+
+Select:
+HATID, ROWID, PERIOD, Q, EPOCH, SNR, DSP, NTR, OOTSIG
+
+blsanalsum.txt: has the BLS results for _every object in the field_
+gawk '$16 > 9 {print}' blsanalsum.txt | gawk '{print $1}' | sort | uniq | wc -l
+Tells you: you have ~13k (out of 95k) that match this peak for a given field.
+
+Working...
+
+Note:
+Running `python setup.py install` on a mac looks like a sure-fire path to
+dependency hell for astrobase.
+Stick it on the macs (>_<)
+
+Also note:
+Takes ~1sec per LC to read in astrobase and then parse out to what I think
+should be the DEBiL-readable format!
+
+==========
+04. Run DEBiL on the /data/DEBiL_LCs/G??? LCs.
+==========
+(follow readme in DEBiL source, and maybe instructions in period-finder
+program)
+
+LASTOFF HERE.
+
+
+==========
+0X. Look at Jonathon Devor's DEBiL (Detached Eclipsing Binary Light curve
+fitter) code. His thesis directly addresses problem #1, which is: identify and
+obtain reasonable parameters for EBs in a large database.
+==========
+
+==========
+0X. Look at JKTEBOP (Southworth). This is a code for more detailed fitting of
+detached EB LCs.
+==========
+
+
+
+==========
+0X. Find what EBs are __known__ within that field from the Kepler EB catalog. 
+Also possible: SIMBAD, GCVS (latter two likely not).
+==========
+* Download Kepler EB catalog.
+  Want: twomassids, periods, 2mass magnitudes (as independent check on xmatch)
+* Crossmatch the twomassids.
+
+==========
+0X. Cross-correlating these EBs, use the already-computed BLS search and
+phase-fold on the period. Independently extract the period and
+ephemeris of the system. Compare with Kepler EB catalog params.
+==========
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+============================================================
+
+SECOND-STEPS:
+Get to EBs that are not readily available in catalogs:
+* Select everything in given HAT field with DSP > 9 (like a SNR, from BLS. 
+  See paper. Use the outputs from HAT's already-computed BLS search!)
+
+  What to do to find eclipsing binaries:
+  * 0. pick a field. Find what EBs are __known__ within that field (SIMBAD, ASAS North/South,
+    other surveys...)
+  * 1. use the outputs from HAT's already-computed BLS search! (or something along those lines)
+
+  in e.g.:
+  G155/BLS
+  LOOK AT *.blsanal files! (don't need to rerun)
+  SAVES THE TOP 5 BLS PEAKS FROM THEIR BLS ANALYSIS.
+
+  frequency: in cycles/day (of that peak)
+  period: 1/freq
+  Q: fractional transit duration (Tdur/period)
+  epoch: at the _start_ of transit (not the center)
+  H: out-of-transit-magnitude for boxcar fit
+  L: in-transit-magnitude
+  Dip: H-L
+  RESsig: ?. RMS of residuals?
+  Dipsig: RMS of in-transit-points?
+
+  --> apply selection criteria based on BLSanal files!! 
+
+  Most useful columns:
+  SR: signal residue. Defined in the BLS paper (not that useful, but in the paper)
+    -> vertical axis on the bls spectrum
+  SNR (look for high SNR)
+  DSP: like a SNR. different defn.
+  DSPR: slightly different defintion
+
+  Another type of SNR (aside from phase-folding on the periods, then from phase-folded
+  LC):
+  * how pretty BLS spectrum is -- the peak height above scatter in BLS spectrum
+
+  **Where are the differences _documented_?**
+  In the pipelines!
+  Description of pipeline:
+
+  HATpipe/source
+    compiled. C++, fortran.
+    > lc/frontends directory: code for running BLS is here!
+      `blsspec.c` creates the BLS spectrum.
+    > lc/analyse
+      `blsanal.c` 
+      look for BLS_FIND_PEAKS, BLS_CALC_ANAL.
+
+  HATpipe/scripts:
+    shell, python, .. 
+
+  ** CHOOSE THINGS ABOVE DSP OF 9 IN BLS FILES **
+  (BLS picks up any variable thing -- astrophysical or not -- so there will be junk too)
+  --> then will be applying a bunch of other filters.
+
+  Things to check:
+  * is the scatter inside and outside of transits different?
+  * look for secondary eclipses (would indicate EBs)
+  * look for large ampltiude transit variations
+    (for transits, bad. for EBs, maybe good?)
+
+  ========================================
+  How to know what was done:
+  in the G115/scripts files.
+
+  Parts of the pipeline that identifies transit candidates from the BLS results:
+  1. fold_x_gb_xv_inspect4.sh: first script in search for transit candidates
+  2. doblsslcpostprocess.sh: second script run in transit candidate search
+
+  ------------------------------
+  So look at:
+  blsanalsum.txt: has the BLS results for _every object in the field_
+
+  gawk '$16 > 9 {print}' blsanalsum.txt | gawk '{print $1}' | sort | uniq | wc -l
+
+  Tells you: you have ~13k (out of 95k) that match this peak for a given field.
+
+
+
+ 
+
+* Have identified EBs w/ orbital & physical parameters
+
+Long period transiting planet search a la DFM style might be a necessary approach for
+a transit search for CBPs in HAT data (after preliminary cuts).
+Same in TESS data.

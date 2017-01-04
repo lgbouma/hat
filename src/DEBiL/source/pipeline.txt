@@ -1,0 +1,104 @@
+Pipeline:
+---------
+
+1) period finder--> ag.out
+
+2) get rid of NaN and Inf -->ag.out2
+
+3) filter out non-periodic variables --> allgood.txt
+
+4) chop up into pieces --> ag1.txt .. ag8.txt
+
+  head -n 2500 allGood.txt > ! ag1.txt
+  head -n 5000 allGood.txt | tail -2500 > ! ag2.txt
+  head -n 7500 allGood.txt | tail -2500 > ! ag3.txt
+  head -n 10000 allGood.txt | tail -2500 > ! ag4.txt
+  head -n 12500 allGood.txt | tail -2500 > ! ag5.txt
+  head -n 15000 allGood.txt | tail -2500 > ! ag6.txt
+  head -n 17500 allGood.txt | tail -2500 > ! ag7.txt
+  tail +17501 allGood.txt > ! ag8.txt
+
+5) fit with debil (in parallel) --> ag1.out ; ag1.err .. ag8.out ; ag8.err
+   /debil/scripts/run_perun.s
+   renice 18 <process ID>
+
+6) concatenate pieces together --> ag.out ; ag.err
+
+7) addColor ag.out agc.out /home/jdevor/work/debil/sumy-color/
+
+8) addProbability agc.out agcp.out
+
+9) sort -n +0 +1 agcp.out > ag.dbl
+
+10) filteration:
+
+  filterDebil ag.dbl 22 l 4 > ag.chi4.dbl
+  filterDebil ag.chi4.dbl 26 m 0.9 > ag.chi4.s09.dbl
+  filterDebil2 ag.chi4.s09.dbl 22 l 25 > ag.chi4.s09.sin.dbl
+  filterRoche ag.chi4.s09.sin.dbl 0 > ag.chi4.s09.sin.roche.dbl
+
+
+
+Make catalog of fitted models:
+------------------------------
+
+1) create *.fit and *.data files 
+   showDebil ag.chi4.s09.sin.dbl
+
+2) create SM (supermongo) script for plotting them  
+   fitCatalog ./
+
+3) sm
+  : inp fitCatalog.sm
+  : quit
+
+4) ps2pdf fitCatalog.ps
+
+5) acroread fitCatalog.pdf &
+
+
+
+Make histograms:
+----------------
+
+1) debil2hist ag.chi4.s09.sin.dbl 100 > ag.chi4.s09.sin.hist
+
+2) histAll ag.chi4.s09.sin.hist
+
+3) sm
+  : inp histAll.sm
+  : quit
+
+4) ps2pdf ag.chi4.s09.sin.hist.ps
+
+5) acroread ag.chi4.s09.sin.hist.pdf &
+
+
+
+Make all-vs-all scatter plots:
+------------------------------
+
+1) grep -v \\-1000.000000 ag.chi4.s09.sin.dbl > ag.chi4.s09.sin.noNaN.dbl
+
+ [removes not-a-number place holders ("-1000.000000")]
+
+
+2) filterDebil ag.chi4.s09.sin.noNaN.dbl 10 l 25 > t1
+   filterDebil t1 12 l 25 > t2
+   filterDebil t2 29 l 4 > t3
+   filterDebil t3 32 m 0.00001 > t4
+   filterDebil t4 33 l 1000 > ag.plotAll.chi4.s09.sin.dbl 
+
+ [removes non-physical values. requires: 
+   I1 < 25 ; I2 < 25 ; HumpDiff < 4 ; rhoMeam > 0.00001 ; rhoMax < 1000]
+
+
+3) plotAll ag.plotAll.chi4.s09.sin.dbl 
+
+4) sm
+  : inp plotAll.sm
+  : quit
+
+5) ps2pdf ag.plotAll.chi4.s09.sin.dbl.ps
+
+6) acroread ag.plotAll.chi4.s09.sin.dbl.pdf &
