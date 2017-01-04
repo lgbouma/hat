@@ -179,15 +179,19 @@ def sqlitecurve_matching_and_LC_processing(DSP_lim, field='G199'):
             # Get sqlitecurve data.
             obj_path = LC_path+hatid+tail_str
             lcd, msg = hatlc.read_and_filter_sqlitecurve(obj_path)
+            # make sure all observations are at the same zero-point. required
+            # for very long time-base HATNet LCs since these include different
+            # instrument combinations over the decade of survey operations.
+            normlcd = hatlc.normalize_lcdict(lcd)
 
             # FIXME: by default, take smallest EPD aperture, & only with "G" flag.
-            time = lcd['rjd'][lcd['aiq_000']=='G'] 
-            mag = lcd['aep_000'][lcd['aiq_000']=='G'] 
-            err = lcd['aie_000'][lcd['aiq_000']=='G']
+            time = normlcd['rjd'][normlcd['aiq_000']=='G']
+            mag = normlcd['aep_000'][normlcd['aiq_000']=='G']
+            err = normlcd['aie_000'][normlcd['aiq_000']=='G']
 
             f_id = open(f_path, 'wb+') # "+" creates if non-existent
             data = np.array([time, mag, err])
-            np.savetxt(f_id, data.T, fmt=['%.7f','%.6f','%.6f']) 
+            np.savetxt(f_id, data.T, fmt=['%.7f','%.6f','%.6f'])
             f_id.close()
 
         else:

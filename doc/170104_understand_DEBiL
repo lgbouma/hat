@@ -3,10 +3,15 @@ Wed 04 Jan 2017 02:10:29 PM EST
 TODO:
 
 UTIL_plot_DEBiL_LCs.py:
-verify magnitude normalization btwn observations works (or does this need to
+X verify magnitude normalization btwn observations works (or does this need to
 happen in preprocessing?)
 
+--> no, it wasn't happening.So I added it in 03_find_LC_period_given_field.py
+(using astrobase's function)
+
 DEBiL:
+* Rerun given properly normalized LCs
+
 * What EBs did we run it on that it failed?
 
 * What is the EB that gave us some output?
