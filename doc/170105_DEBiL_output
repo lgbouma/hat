@@ -1,0 +1,102 @@
+Wed 04 Jan 2017 05:38:13 PM EST
+
+List of param names in DEBiL output:
+
+['fname', 
+'period',
+'ecc',
+'ecc_err',
+'r1', 
+'r1_err',
+'r2',
+'r2_err',
+'I1',
+'errB1',
+'I2',
+'errB2',
+'sini',
+'sini_err',
+'t0', 
+'t0_err',
+'omega', 
+'omega_err',
+'size', 
+'num_rid', 
+'y', 
+'avr_chi2', 
+'spline_chi2', 
+'sin_chi2',
+'sigmaMin2Amp', 
+'sigmaMax1Amp', 
+'sigmaMaxDiff', 
+'plateau_waviness',
+'mid_scatter_score',
+'mean_density0',
+'mean_density1']
+
+* p[DIM] = parameter vector
+* What parameters? Quoting Devor's thesis:
+  • Radius of primary star
+  • Radius of secondary star
+  • Brightness of primary star
+  • Brightness of secondary star
+  • Orbital eccentricity
+  • Orbital inclination
+  • Epoch of periastron
+  • Argument of periastron
+
+
+[filename, 
+period,
+p[D_ECC],
+estimateError(D_ECC, p, y, 0, time, amp, err, size, numIterations),
+p[D_R1], 
+errR1,
+p[D_R2]
+errR2,
+-2.5 * log10(p[D_B1] * integrateWholeDisk(p[D_R1])),
+errB1,
+-2.5 * log10(p[D_B2] * integrateWholeDisk(p[D_R2])), 
+errB2,
+p[D_SIN_I],
+estimateError(D_SIN_I, p, y, 0, time, amp, err, size, numIterations),
+mod1(p[D_TPO] + p[D_TMO]), 
+errTMPO,
+360.0 * mod1(p[D_TPO] - p[D_TMO]), 
+360.0 * errTMPO,
+size, 
+numRid, 
+y, 
+avrChi2, 
+splineChi2, 
+sinChi2,
+sigmaMin2Amp, 
+sigmaMax1Amp, 
+sigmaMaxDiff, 
+plateauWaviness,
+midScatterScore(p, time, amp, size),
+meanDensity(period, p[D_R1], p[D_R2]), 
+meanDensity(period, 0.0, p[D_R2])]
+
+
+
+
+
+
+fprintf (fout, "%s %.12f ", filename, period) ;
+fprintf (fout, "%f %f ", p[D_ECC],
+   estimateError(D_ECC, p, y, 0, time, amp, err, size, numIterations)) ;
+fprintf (fout, "%f %f ", p[D_R1], errR1) ;
+fprintf (fout, "%f %f ", p[D_R2], errR2) ;
+fprintf (fout, "%f %f ", -2.5 * log10(p[D_B1] * integrateWholeDisk(p[D_R1])), errB1) ;
+fprintf (fout, "%f %f ", -2.5 * log10(p[D_B2] * integrateWholeDisk(p[D_R2])), errB2) ;
+fprintf (fout, "%f %f ", p[D_SIN_I],
+   estimateError(D_SIN_I, p, y, 0, time, amp, err, size, numIterations)) ;
+fprintf (fout, "%f %f ", mod1(p[D_TPO] + p[D_TMO]), errTMPO) ;
+fprintf (fout, "%f %f ", 360.0 * mod1(p[D_TPO] - p[D_TMO]), 360.0 * errTMPO) ;
+
+fprintf (fout, "%d %d %f %f %f %f ", size, numRid, y, avrChi2, splineChi2, sinChi2) ;
+fprintf (fout, "%f %f %f %f ", sigmaMin2Amp, sigmaMax1Amp, sigmaMaxDiff, plateauWaviness) ;
+fprintf (fout, "%f %f %f\n", midScatterScore (p, time, amp, size),
+   meanDensity(period, p[D_R1], p[D_R2]), meanDensity(period, 0.0, p[D_R2])) ;
+

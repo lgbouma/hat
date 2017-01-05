@@ -1,0 +1,113 @@
+Thu 05 Jan 2017 02:47:09 PM EST
+
+Goal: identify 10k reliable EBs (detached and bright) in the HAT data, by
+  Jan 20. (Figure out the _method_ to do it, e.g., in one field of the ~150 in
+  the HATNet data, by next Tues)
+
+Adopt Prsa+2011 classification: D, SD, OC, ELV, and ?.
+N.b. typical EB fractions from ground are 25% D, 25% SD, 50% OC.
+Kepler EB catalog was ~50% D, 25% SD, 25% OC. (->~3k EBs->1.5k D-class).
+So we need at least 5k D-class EBs for this to be interesting.
+
+Phrased this way, reorient approaches:
+
+-01. Query existing catalogs to get a big list of known EBs. Keep these lists for cross-matching with lists of stars surveyed by HATNet.
+-> SIMBAD (query for morphological type, for δ>0. 20k max-> split into sub-declination groups).
+-> ASAS-North (Pigulski 2008). Cataloged 1k variables in Kepler field, but no others. Directly using the Kepler EB list would be better.
+-> GCVS catalog.
+-> TRES catalog (Devor 2008)?
+-> Kepler EB list
+
+These are fine, but many will be too bright (-> saturation) or too faint for
+HATNet precision. Querying the Kepler EB list is also a bit futile for
+discovery, since their LCs are far more precise. Focus on the HAT data:
+
+====================
+00.  Pick a HAT field. 
+
+01. Get a list of all HAT ID objects in that field (on which BLS has already been
+run thru the pipeline) + find corresponding 2MASS IDs.
+
+02. Retrive LCs for these HAT objects. (expected size?)
+
+03. Find the LC period (if it has one). Specifically, this means: look at the
+five BLS peaks for each LC. (From what's already on phn12 in the blsanal
+files). If DSP>CUTOFF (where CUTOFF could be, say, 10), then we saw that
+particular LC has a strong enough periodic component to make it past the first
+cut.
+
+04. Search for entires with oribtal periods differeing by <0.1 days, and
+coordinates differing by <0.03 deg. Assign EB to star whose LC shows the deepest 
+eclipse event as would be expected when the photometric aperture is centered on 
+the EB.
+
+0X. `ephem`: computes 3 periodograms - LS, analysis of variance, and BLS. Program
+has two panels: one for periodogram, other for phased LC. Dragging mouse over
+periodogram modifies the period, allowed for quick tuning.
+
+0X. `sahara`: visually inspect each LC, select by eye the primary and secondary
+eclipses  
+
+0X. Look at histogram of periods.
+
+0X. Try PHOEBE 2.0 + emcee (_heavily_ documented + solid base)
+
+0X. Try JKTEBOP + emcee. (Still detached-EB specialized, likely as fast b/c
+modern and maintained)
+
+0X. Try Stetson Variability Index on all filtered and unfiltered LCs (measure 
+of correlated signal in a LC). (Christiansen+ 2008 claims good at long-P
+variables)
+
+0X. DEBiL (?). Nominally supposed to do this job. Not maintained. Not well
+documented (or used).
+
+====================
+TODO:
+
+Where are ephem / sahara?
+X email Prsa
+* Friday afternoon: call Prsa (phone # online)
+
+* Rerun 00-03 for new field. (Edit scripts appropriately, e.g., giving them
+shell kwargs so that you can bash-script them & log input/output nicely). For
+"neighboring fields" functionality: do it field-by-field. Create some input 
+file with lists of neighboring fields.
+Use: DSP limit of 20. 
+
+* Implement 04.
+
+* After 03, rerun periodogram analysis to improve period. 
+Create "check plots" per astrobase, w/ LS + analysis of variance + BLS.
+(Include things like name of HAT object, 2MASS image)
+Run a visual check search (per what `ephem` and `sahara` do) for the results
+of given field, and classify visually into D/SD/OC/?.
+
+
+
+
+
+
+
+
+===================
+Details:
+
+SIMBAD:
+Queried anything of EB type, with δ>0 from http://simbad.u-strasbg.fr/simbad/sim-fsam.
+
+EB*     EB*     Eclipsing binary    
+·  EB*Algol     Al*     Eclipsing binary of Algol type (detached)    
+·  EB*betLyr      bL*     Eclipsing binary of beta Lyr type (semi-detached)    
+·  EB*WUMa      WU*     Eclipsing binary of W UMa type (contact binary)    
+·  EB*Planet      EP*     Star showing eclipses by its planet    
+
+
+GCVS:
+Queried E, EW, EA, and EB types from http://www.sai.msu.su/gcvs/cgi-bin/search.htm#type
+
+Defintions:
+E   Eclipsing binary systems. 
+EA   Algol (Beta Persei)-type eclipsing systems. (Detached)
+EB   Beta Lyrae-type eclipsing systems.  (Semidetached)
+EW   W Ursae Majoris-type eclipsing variables. (Contact)

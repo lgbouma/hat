@@ -1,5 +1,8 @@
 Wed 04 Jan 2017 02:10:29 PM EST
 
+N.b. on LC flags:
+'G' good, 'C' caution, 'X' bad
+
 TODO:
 
 UTIL_plot_DEBiL_LCs.py:
@@ -9,23 +12,107 @@ happen in preprocessing?)
 --> no, it wasn't happening.So I added it in 03_find_LC_period_given_field.py
 (using astrobase's function)
 
+X add "vanderburg style" to LCs for easy viewing
+
 DEBiL:
-* Rerun given properly normalized LCs
+X Possible EBs:
+HAT-199-0000452
+HAT-199-0003189 # pulsating?
+HAT-199-0011711
+HAT-199-0014194
+HAT-199-0015348
+HAT-199-0015605
+HAT-199-0018345
+HAT-199-0024064
+HAT-199-0025897
+HAT-199-0029841 # contact EB?
+HAT-199-0032867 # depths differ
+HAT-199-0058391
+HAT-199-0063712
+HAT-199-0068006
+HAT-199-0073725 # wrong folded period
+HAT-199-0073928 # wrong folded period
+HAT-199-0076100
+HAT-199-0087690
+HAT-199-0089801
+HAT-199-0093825
+HAT-199-0116838
+HAT-199-0131606
+
+(Note from a list of ~220, this is ~22 -- so 1 in 10 is "interesting")
+
+X Rerun DEBiL on above list, given properly normalized LCs
+  > ./debil test2_input.txt test2.out test2.err
+
+Running takes ~15 minutes (~1minutes per LC).
+
+Succeeds on 6, fails on 16.
+See test2.err, test2.out.
+
+X What is the DEBiL output format?
+> See 170105_DEBiL_output.
 
 * What EBs did we run it on that it failed?
+HAT-199-0011711:
+HAT-199-0014194: obvious primary. where is secondary?
+HAT-199-0015348: seems clear
+HAT-199-0018345:
+HAT-199-0024064:
+HAT-199-0025897:
+HAT-199-0029841:
+HAT-199-0058391:
+HAT-199-0063712: seems obvious
+HAT-199-0068006:
+HAT-199-0073725:
+HAT-199-0073928: would hope DEBiL gets 2x period
+HAT-199-0087690:
+HAT-199-0089801:
+HAT-199-0093825:
+HAT-199-0116838:
+HAT-199-0131606:
 
-* What is the EB that gave us some output?
+* What EBs give us some output?
+HAT-199-0000452: obv EB. DEBiL says ecc=0.763!?
+HAT-199-0003189: 
+HAT-199-0011711:
+HAT-199-0015605: secondary visually fine. Only fit that seems likely at glance.
+HAT-199-0032867:
+HAT-199-0076100: ecc=0.974?!
 
-* What is the output format?
+* overplot DEBiL fit results to their LCs. (although there are hardly enough to
+  be interesting, it'll help in understanding e.g., t0... and where is the time
+  of secondary eclipse?)
 
-N.b. on LC flags:
-'G' good, 'C' caution, 'X' bad
+```
+For Gaspar discn:
+/results/possible_EBs_199
+/results/DEBiL_output
 
+Makes DEBiL seem... not very promising. Unless I'm using it wrong (which I very
+well might be... documentation is sparse, and there isn't exactly a user base).
 
+It'd be a useful test, if J Devor was interested, to see what HE gets by
+running it on the same group of input files. What might he do that I don't know
+to do?
 
+JKTEBOP + emcee might be better (although more expensive earlier... would need
+smarter earlier cuts. E.g., ignore BLS peaks from 0.993-1.007 days. What else?)
 
+Might also be better to look at what Hartman+ 2004 did for EB identification.
 
+Then do what you'd do with a BATMAN+emcee combo to fit for the ~8 EB
+parameters:
+  • Radius of primary star
+  • Radius of secondary star
+  • Brightness of primary star
+  • Brightness of secondary star
+  • Orbital eccentricity
+  • Orbital inclination
+  • Epoch of periastron
+  • Argument of periastron
 
+* Figure out better way to flag promising EB candidates (other than DSP>limit,
+  where limit=30)
 
 
 
@@ -164,4 +251,4 @@ Get to EBs that are not readily available in catalogs:
 
 Long period transiting planet search a la DFM style might be a necessary approach for
 a transit search for CBPs in HAT data (after preliminary cuts).
-Same in TESS data.
+

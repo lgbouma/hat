@@ -1,0 +1,19 @@
+Data a part of UNSW (Univ New South Wales) transiting exoplanet search.
+
+Three methods to extract variable LCs from full data set:
+
+i) visual inspection of filtered LCs down to 13th mag
+- works for P<~5d. Harder when noisier.
+
+ii) BLS analog on all filtered LCs down to 14th mag
+- visually inspect LCs with SNR>8.
+- not good for variable LCs with periods much shorter or longer than BLS window
+  (e.g., 0.5-10d for them... similar for HATpipe?)
+
+iii) implementation of Stetson Variability Index on entire set of filtered
+and unfiltered LCs
+- measure of correlated signal in a LC
+- claim better at detecting long period variables
+
+
+

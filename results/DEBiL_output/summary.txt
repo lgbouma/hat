@@ -1,0 +1,27 @@
+* What EBs did we run it on that it failed?
+HAT-199-0011711:
+HAT-199-0014194: obvious primary. where is secondary?
+HAT-199-0015348: seems clear
+HAT-199-0018345:
+HAT-199-0024064:
+HAT-199-0025897:
+HAT-199-0029841:
+HAT-199-0058391:
+HAT-199-0063712: seems obvious
+HAT-199-0068006:
+HAT-199-0073725:
+HAT-199-0073928: would hope DEBiL gets 2x period
+HAT-199-0087690:
+HAT-199-0089801:
+HAT-199-0093825:
+HAT-199-0116838:
+HAT-199-0131606:
+
+* What EBs give us some output?
+HAT-199-0000452: obv EB. DEBiL says ecc=0.763!?
+HAT-199-0003189:
+HAT-199-0011711:
+HAT-199-0015605: secondary visually fine. Only fit that seems likely at glance.
+HAT-199-0032867:
+HAT-199-0076100: ecc=0.974?!
+
