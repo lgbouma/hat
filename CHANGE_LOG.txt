@@ -1,3 +1,10 @@
+Mon 09 Jan 2017 12:30:07 PM EST
+
+Reoriented. Wrote astrobase extension for make_eb_checkplot. It's running and
+creating sane results. Next steps: do it on many fields.
+
+==============================
+
 Wed 04 Jan 2017 01:58:24 PM EST
 
 Updates from the holidays:

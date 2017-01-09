@@ -1,0 +1,2 @@
+# Enter HAT field identifier. (E.g., '199', for HAT-199-??????? stars).
+081

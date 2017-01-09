@@ -25,8 +25,8 @@ discovery, since their LCs are far more precise. Focus on the HAT data:
 ====================
 00.  Pick a HAT field. 
 
-01. Get a list of all HAT ID objects in that field (on which BLS has already been
-run thru the pipeline) + find corresponding 2MASS IDs.
+01. Get a list of all HAT ID objects w/ sqlitecurves in that field (on which 
+BLS has already been run thru the pipeline) + find corresponding 2MASS IDs.
 
 02. Retrive LCs for these HAT objects. (expected size?)
 
@@ -36,7 +36,7 @@ files). If DSP>CUTOFF (where CUTOFF could be, say, 10), then we saw that
 particular LC has a strong enough periodic component to make it past the first
 cut.
 
-04. Search for entires with oribtal periods differeing by <0.1 days, and
+04. Search for entries with oribtal periods differeing by <0.1 days, and
 coordinates differing by <0.03 deg. Assign EB to star whose LC shows the deepest 
 eclipse event as would be expected when the photometric aperture is centered on 
 the EB.
@@ -62,6 +62,8 @@ variables)
 0X. DEBiL (?). Nominally supposed to do this job. Not maintained. Not well
 documented (or used).
 
+0X. Write program that allows systematic visual EB classification
+
 ====================
 TODO:
 
@@ -69,19 +71,105 @@ Where are ephem / sahara?
 X email Prsa
 * Friday afternoon: call Prsa (phone # online)
 
-* Rerun 00-03 for new field. (Edit scripts appropriately, e.g., giving them
-shell kwargs so that you can bash-script them & log input/output nicely). For
-"neighboring fields" functionality: do it field-by-field. Create some input 
-file with lists of neighboring fields.
+* Rerun 00-03 for new field. 
+  X Edit scripts appropriately, e.g., giving them shell kwargs so that you can 
+    bash-script them & later log input/output nicely). 
+  X For "neighboring fields" functionality: do it field-by-field. Create some input 
+    file with lists of neighboring fields.
+  X modify sqlitecurve_matching_and_LC_processing function to be less DEBiL-centric.
+
+  * (?) do we want to run our period refinement once we've done
+  hatlc.read_and_filter_sqlitecurve, & the subsequent normalization?
+  A: most likely. Once we have the LCs loaded we can just let loose
+  with astrobase.
+  -> to get the specific checkplots I want (w/ stellingwerf + LS + BLS), likely best 
+  to just do it directly here. it's ~a few hundred per field with DSP>20.
+
+  * further cut: only things for which 2 of the top 3 BLS peaks are > 1 day
+  (we don't care about short-period binaries b/c they won't be detached -> have
+  undergone crazy evolution -> are probably unlikely to host CBPs)
+
+  * write relevant "checkplot" maker for EB-specific visual inspection (and
+    contribute it to astrobase).
+
 Use: DSP limit of 20. 
 
-* Implement 04.
+Details: 
+blsanalsum.txt has 34,600 unique stars in '*-081*' field. (Very close
+to what sqlitecurve_header has)
+
+Note that /data/LCs is a staging ground. All of a given field's LCs can't stay 
+there forever -- they're >~100Gb / field, depending on the field. So we cut
+them, and keep the interesting ones in LC_cuts.
+HOWEVER with our current approach this is not being done w/ sqlitecurves --
+only the 3 columns of interest.
+Done: fix.
+
+Is it fine to just save em? OOM: 78Gb per 32k LCs (from field G081), so
+In [6]: 78/32054. *1000
+Out[6]: 2.433393648218631 Mb per sqlitecurve
+
+In [7]: 78/32054. *50000
+Out[7]: 121.66968241093154 Gb for storing 50k LCs with DSP>20 locally in
+sqlitecurve format. 
+
+This seems fine.
+
+sigma clipping: `sigclip`. By default, they say:
+  sigind = |finite mags - median_mag| < (sigclip * stddev_mag)                                                                                                                                           
+
+Seems not helpful for EBs (where e.g. a 50% dip means a 0.75mag drop).
+Just don't do any, and see how bad it is.
+
+----------
+Sat 07 Jan 2017 11:48:46 PM EST
+
+Ok, after implementing what seems like a semi-working thing:
+* why are many of the BLS1 plots 1.000019 days??
+
+* it's cranking at 3mins/plot.
+  20plots/hr -> come back in 10-15hr, we'll have ~200-300 plots (unless DSP of
+  40 is too big)
+----------
+Mon 09 Jan 2017 10:06:24 AM EST
+
+X PR the make_eb_checkplot changes
+
+X figure out sigma clipping for the plots -- (or just fix the ylims to be
+  whatever the median is, like plus 1 and minus 3 standard deviations or something
+  (and at most 1 mag, since that's a >50% dip)
+
+X BLS takes FOREVER. maybe just don't rerun it? or figure out how to make the
+  spectrum less dense. or use the points that we already have from HATpipe
+  > WB says: try 500k max, for a coarse period search
+  > on the epochs being wonky... those come from a spline fit. you could also
+  > go into the `blsresults` keys to get the bls epochs instead... they might
+  > be better. (OR just ignore; for a coarse search don't expect awesome
+  > epochs)
+
+X we need to COPY (not MOVE) the _cut LCs (b/c what if we want to rerun, with a
+  lower DSP cut?)
+X move everything with all nbestperiods > 20d to some other folder (where we
+  don't believe that they'll be detached EBs)
+
+* figure out how to deal with neighboring stars that get the same periods (i
+  think we have a check below)
+
+
+
+* check out ephem and sahara!
+
+
+* Implement 04. (Else: do an ephem-like analysis to improve period guess)
 
 * After 03, rerun periodogram analysis to improve period. 
 Create "check plots" per astrobase, w/ LS + analysis of variance + BLS.
 (Include things like name of HAT object, 2MASS image)
 Run a visual check search (per what `ephem` and `sahara` do) for the results
 of given field, and classify visually into D/SD/OC/?.
+
+* Wrap 00-04 to keep text file logs of what input params you use at command 
+line.
 
 
 
