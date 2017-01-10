@@ -77,6 +77,8 @@ def scp_blsanalsum_output(field_id=None):
     '''
     This script copies BLS results (blsanalsum.txt files) from a run of
     HATpipe, hosted on the HAT servers, locally for processing.
+    Note: it copies the BLS results for your named field (`field_id`), as well
+    as any neighboring fields.
     '''
     assert type(field_id) == str, 'call scp_blsanalsum_output with field_id'
 
@@ -125,12 +127,17 @@ def parse_blsanalsum_for_BLS_peaks(max_DSP=None,Ntra_min=3):
     HATID, ROWID, PERIOD, Q, EPOCH, SNR, DSP, NTR, OOTSIG. Save it in
     /data/HATpipe/blsanalsums/cuts/.
     Impose cuts on minimum number of transits (NTR) and their quality (NTV).
+
+    Do this for every blsanalsum.txt results file found in
+    "/data/HATpipe/blsanalsums/". This simplifies subsequent analysis (and if
+    you change Ntra_min, it will break the file naming convention).
     '''
     assert type(max_DSP) == int, 'call parse_blsanalsum_for_BLS_peaks with max_DSP'
 
     max_DSP = str(max_DSP)
-    # Joel's "NTV" column: 53200. Means 2nd best transit has btwn 50-60% of 
-    # covered pts as best transit. 3rd best has 30-40%. 4th 20-30%. Rest 0-10%.
+    # Joel's "NTV" column example: 
+    # "53200" means 2nd best transit has btwn 50-60% of covered pts as best 
+    # transit. 3rd best has 30-40%. 4th 20-30%. Rest 0-10%.
     NTV_first_char_atleast = 6
     NTV_second_char_atleast = 4
     data_path = '../data/HATpipe/blsanalsums/'
@@ -152,6 +159,7 @@ def parse_blsanalsum_for_BLS_peaks(max_DSP=None,Ntra_min=3):
         if os.path.exists(out_path):
             print('{:s} exists; continue.'.format(out_path))
         else:
+            # Apply gawk powers
             gawk_call='gawk \'($16 > {:s}) && ($25 > {:d}) && '.format(\
                 max_DSP, Ntra_min)+\
                 '(substr($27,1,1) > {:d}) && (substr($27,2,1) > {:d})'.format(\
@@ -167,14 +175,20 @@ def parse_blsanalsum_for_BLS_peaks(max_DSP=None,Ntra_min=3):
 
 def download_parsed_LCs(DSP_lim=None,field_id=None):
     '''
-    For LCs that met already-imposed cuts on Joel's big legacy BLS run,
-    download their corresponding LCs from the HAT servers for subsequent
-    periodicity analysis.
-    Returns `out`, the astropy table with (ROWID, PERIOD, Q, EPOCH, SN, DSP,
-    NTR, OOTSIG, and has_sqlc) columns.
+    For LCs that met the cuts imposed in the blsanalsum parsing step (from
+    Joel's big legacy BLS run), download their corresponding LCs from the HAT
+    servers for subsequent periodicity analysis. The LC format is sqlitecurve.
+    Note this is done for all stars in the named field (`field_id`) and its
+    neighboring (on-sky-field), if the neighboring "Cand" dirs have stars that
+    are in fact in the named field.
 
     Args:
-        field_id: HAT-???-1234567
+
+    `field_id`: HAT-???-1234567
+
+    Returns:
+    `out`: astropy table with (ROWID, PERIOD, Q, EPOCH, SN, DSP, NTR, OOTSIG,
+        and has_sqlc) columns.
 
     (Previously 02_retrive_LCs_given_sqlitecurve_head.py.)
     '''
@@ -382,7 +396,7 @@ def periodicity_analysis(out,
 
 
 if __name__ == '__main__':
-
+    '''See docstring at top of program'''
     parser = argparse.ArgumentParser()
     parser.add_argument('args', nargs='+')
     ao = parser.parse_args()

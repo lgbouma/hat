@@ -1,2 +1,3 @@
 # Enter HAT field identifier. (E.g., '199', for HAT-199-??????? stars).
-081
+# TODO: turn this into an input list, where user can put in all the fields they
+# want to analyze
