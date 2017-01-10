@@ -9,6 +9,7 @@ field_*
 /src/keptools*
 /src/DEBiL/src/HAT*txt
 /src/dev/astrobase*
+/src/*out
 data/LCs/*
 data/HATpipe/*
 data/intermed/*

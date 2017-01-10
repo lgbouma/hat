@@ -3,7 +3,8 @@ Given field, DSP_lim, and LCs, find first-pass at interesting EB candidates by
 periodicity analysis. Return EB checkplots.
 
 Usage (from within hat/src/):
-> python 02_get_EB_checkplots.py field_id DSP_lim > foo.out
+> python 02_get_EB_checkplots.py field_id DSP_lim > G???_DSP??.out
+
 Args:
     field_id: integer specifying HAT field ID number (HAT-???-1234567).
 
@@ -81,6 +82,7 @@ def scp_blsanalsum_output(field_id=None):
     as any neighboring fields.
     '''
     assert type(field_id) == str, 'call scp_blsanalsum_output with field_id'
+    print('\nBeginning scp_blsanalsum_output...\n')
 
     # Given neighboring fields, get paths on HATNet servers to download BLS
     # pipeline output
@@ -129,9 +131,12 @@ def parse_blsanalsum_for_BLS_peaks(max_DSP=None,Ntra_min=3):
     Impose cuts on minimum number of transits (NTR) and their quality (NTV).
 
     Do this for every blsanalsum.txt results file found in
-    "/data/HATpipe/blsanalsums/". This simplifies subsequent analysis (and if
-    you change Ntra_min, it will break the file naming convention).
+    "/data/HATpipe/blsanalsums/" (irrespective of field_id!).
+
+    This simplifies subsequent analysis (and if you change Ntra_min, it will
+    break the file naming convention).
     '''
+
     assert type(max_DSP) == int, 'call parse_blsanalsum_for_BLS_peaks with max_DSP'
 
     max_DSP = str(max_DSP)
@@ -146,10 +151,11 @@ def parse_blsanalsum_for_BLS_peaks(max_DSP=None,Ntra_min=3):
     blsanalsum_paths = [data_path+eb for eb in existing_blsanalsums if '.txt' \
             in eb]
 
-    print('parse_blsanalsum_for_BLS_peaks w/:\nmax_DSP:{:s}'.format(max_DSP)+\
-        '\nNtra_min:{:d}'.format(Ntra_min)+\
-        '\nNTV_first_char_atleast:{:d}'.format(NTV_first_char_atleast)+\
-        '\nNTV_second_char_atleast:{:d}\n'.format(NTV_second_char_atleast))
+    print('\nBeginning parse_blsanalsum_for_BLS_peaks with:'+\
+        '\nmax_DSP: {:s}'.format(max_DSP)+\
+        '\nNtra_min: {:d}'.format(Ntra_min)+\
+        '\nNTV_first_char_atleast: {:d}'.format(NTV_first_char_atleast)+\
+        '\nNTV_second_char_atleast: {:d}\n'.format(NTV_second_char_atleast))
 
     for blsanalsum_path in blsanalsum_paths:
         this_file = blsanalsum_path.split('/')[-1]
@@ -193,6 +199,7 @@ def download_parsed_LCs(DSP_lim=None,field_id=None):
     (Previously 02_retrive_LCs_given_sqlitecurve_head.py.)
     '''
     assert type(field_id)==str and type(DSP_lim)==int
+    print('\nBeginning download_parsed_LCs...\n')
 
     field_name = 'G' + field_id # e.g., 'G081'
     head_base = '../data/sqlitecurve_headers/'
@@ -245,12 +252,15 @@ def download_parsed_LCs(DSP_lim=None,field_id=None):
     lcfpaths = ['hatnet/DR0/{:s}/'.format(field_id)+'/'+hatid+\
             '-V0-DR0-hatlc.sqlite.gz' for hatid in out.index \
             if np.all(out.ix[hatid].has_sqlc)]
-    print('Beginning sqlitecurve download for {:s} ({:d} total). Update every 100'.\
+    print('\n\nBeginning sqlitecurve download for {:s} ({:d} total).\n\n'.\
             format(field_name, len(lcfpaths)))
     k = 0
-    for lcfpath in lcfpaths:
+    for ix, lcfpath in enumerate(lcfpaths):
         # If you already have the LC, don't redownload it. 
+        if ix % 20 == 0:
+            print('{:d}: {:s}. (Update)'.format(ix,lcfpath))
         if os.path.exists(write_dir+'/'+lcfpath.split('/')[-1]):
+            print('{:s} exists, continue.'.format(lcfpath.split('/')[-1]))
             continue
         else:
             # Download and write the LC
@@ -264,7 +274,7 @@ def download_parsed_LCs(DSP_lim=None,field_id=None):
                 time.sleep(0.1)
             k += 1
 
-    print('Done downloading LCs that meet cuts.')
+    print('\nDone downloading LCs that meet cuts.\n\n')
 
     return out
 
@@ -289,6 +299,7 @@ def periodicity_analysis(out,
            (in basically all use cases, not necessary).
     '''
     assert type(field_id) == str
+    print('\nBeginning periodicity analysis...\n\n')
 
     # File name format: HAT-199-0025234-V0-DR0-hatlc.sqlite.gz
     field_name = 'G' + field_id # e.g., 'G081'
@@ -372,11 +383,17 @@ def periodicity_analysis(out,
                     copyfile(obj_path, LC_cut_path)
 
                 # Cut: if _all_ nbestperiods > 30 days, likely Cepheid or other
-                # pulsation periodicity that is not of interest
+                # pulsation periodicity that is not of interest.
+                # While there may legitimately be detached binaries at > 30
+                # days, we will struggle to find them, and their lower
+                # harmonics should be in their periodograms.
+                # Additional case to hide: if the only good peaks below 30 days
+                # are multiples of 1 day (within 0.01days, absolute)
                 bestperiods = spdmp['nbestperiods']+blsp['nbestperiods']
-                print(bestperiods)
-                period_cut = 30. # days
-                if np.all(np.array(bestperiods) > period_cut):
+                period_cut = 30.
+                bparr = np.array(bestperiods)
+                if np.all(bparr > period_cut) or \
+                np.all(np.isclose(bparr[bparr<period_cut]%1., 0., atol=1e-2)):
                     # Move the eb_checkplot, and the LC to subdirs
                     os.rename(LC_cut_path, LC_periodcut_path)
                     os.rename(CP_cut_path, CP_periodcut_path)

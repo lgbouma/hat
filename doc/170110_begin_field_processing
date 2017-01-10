@@ -22,7 +22,7 @@ STEP 1: only download LCs that meet parsed requirements (all at once -> easier
         subseuent tuning of params)
         (Saves SHITTONS of disk space)
 
-* put in selection against very-close-to-1day periods (and move them too)
+X put in selection against very-close-to-1day periods (and move them too)
 
 * incorporate all of waqas' new fields: (look at /LC subdir!)
   G115: 400gb
@@ -30,6 +30,10 @@ STEP 1: only download LCs that meet parsed requirements (all at once -> easier
   G160: 153gb
   G248: 81gb
   G389: 310gb
+
+Ran:
+> python 02_get_EB_checkplots.py 081 30 
+> python 02_get_EB_checkplots.py 248 30 > G248_DSP30.out &
 
 
 * deal with neighboring stars that get the same periods (i
