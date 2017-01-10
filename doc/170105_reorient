@@ -152,12 +152,31 @@ X we need to COPY (not MOVE) the _cut LCs (b/c what if we want to rerun, with a
 X move everything with all nbestperiods > 20d to some other folder (where we
   don't believe that they'll be detached EBs)
 
-* figure out how to deal with neighboring stars that get the same periods (i
+*? deal with things with 3 best periods being very close to 1day (e.g., 
+  0.00095-1.0005, or its aliases) (perhaps not--seems not too common)
+
+DSP of 30 seems like a good limit from G081.
+----------
+
+* see whether to follow Joel's advice on the cuts (Ntra, rather than a strict
+  cut on periods)
+
+* figure out how to incorporate all of waqas' new fields (e.g. how to run
+  something that _deletes_ everything in "LCs", while keeping the interesting
+  stuff in LCs_cut.
+
+* deal with neighboring stars that get the same periods (i
   think we have a check below)
+  "" Search for entries with oribtal periods differeing by <0.1 days, and
+  coordinates differing by <0.03 deg. Assign EB to star whose LC shows the deepest 
+  eclipse event as would be expected when the photometric aperture is centered on 
+  the EB. ""
 
 
+----------
 
 * check out ephem and sahara!
+  -> period and transit ephemeris refinement tools.
 
 
 * Implement 04. (Else: do an ephem-like analysis to improve period guess)

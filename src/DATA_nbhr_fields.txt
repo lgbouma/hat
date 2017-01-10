@@ -1,4 +1,8 @@
 # What fields are close to the fields of interest?
 # format: field_of_interest,all_other_neighboring_fields (arbitrary length list)
 199,199,154,198,155,197,153,115,292,242
-081,081
+081,081,115
+133,133,096,095,132,173,174,175,134
+160,160,159,161,204,205,206,203
+248,248,247,249,203,204
+389,389,388,341,342

@@ -1,0 +1,61 @@
+Tue 10 Jan 2017 08:40:42 AM EST
+
+*? deal with things with 3 best periods being very close to 1day (e.g., 
+  0.00095-1.0005, or its aliases) (perhaps not--seems not too common)
+
+DSP of 30 seems like a good limit from G081.
+----------
+
+X see whether to follow Joel's advice on the cuts (Ntra, rather than a strict
+  cut on periods)
+  X in blsanal files:
+  > Cut on NTR >= 3.
+  > Cut on 1st and 2nd fields of NTV as >=6 and >=4.
+
+X OR: rewrite procedure: do not download entire field. 
+  Only download the files you NEED, rather than
+  EVERYTHING. i.e. 
+  
+STEP 0: scp and parse BLS results for a given field (e.g., G081).
+        make cuts by Ntra_min, NTV, and DSP_lim.
+STEP 1: only download LCs that meet parsed requirements (all at once -> easier
+        subseuent tuning of params)
+        (Saves SHITTONS of disk space)
+
+* put in selection against very-close-to-1day periods (and move them too)
+
+* incorporate all of waqas' new fields: (look at /LC subdir!)
+  G115: 400gb
+  G133: 79gb
+  G160: 153gb
+  G248: 81gb
+  G389: 310gb
+
+
+* deal with neighboring stars that get the same periods (i
+  think we have a check below)
+  "" Search for entries with oribtal periods differeing by <0.1 days, and
+  coordinates differing by <0.03 deg. Assign EB to star whose LC shows the deepest 
+  eclipse event as would be expected when the photometric aperture is centered on 
+  the EB. ""
+
+
+----------
+
+* check out ephem and sahara!
+  -> period and transit ephemeris refinement tools.
+
+
+* Implement 04. (Else: do an ephem-like analysis to improve period guess)
+
+* After 03, rerun periodogram analysis to improve period. 
+Create "check plots" per astrobase, w/ LS + analysis of variance + BLS.
+(Include things like name of HAT object, 2MASS image)
+Run a visual check search (per what `ephem` and `sahara` do) for the results
+of given field, and classify visually into D/SD/OC/?.
+
+* Wrap 00-04 to keep text file logs of what input params you use at command 
+line.
+
+
+

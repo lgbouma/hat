@@ -1,3 +1,23 @@
+Tue 10 Jan 2017 02:42:58 PM EST
+
+`parse_blsanalsum_for_BLS_peaks`: (pre-direct periodicity analysis)
+  * added filter by Ntra_min (>=3)
+  * added filter by NTV_first_char_atleast, being 6, and the second char being at
+    least 4.
+
+Also renamed 03_find_LC_period.py --> 02_get_EB_checkplots.py.
+
+Restructured it to following procedure:
+STEP 0: scp and parse BLS results for a given field (e.g., G081).
+        make cuts by Ntra_min, NTV, and DSP_lim.
+STEP 1: only download LCs that meet parsed requirements (all at once -> easier
+        subseuent tuning of params)
+        (Saves LOTS of disk space)
+
+Is running on field G081, seems to be functional.
+
+
+==============================
 Mon 09 Jan 2017 12:30:07 PM EST
 
 Reoriented. Wrote astrobase extension for make_eb_checkplot. It's running and

@@ -5,6 +5,8 @@ field_*
 *csv*
 *head
 /src/astrobase*
+/src/auxtools*
+/src/keptools*
 /src/DEBiL/src/HAT*txt
 /src/dev/astrobase*
 data/LCs/*
