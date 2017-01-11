@@ -24,16 +24,36 @@ STEP 1: only download LCs that meet parsed requirements (all at once -> easier
 
 X put in selection against very-close-to-1day periods (and move them too)
 
-* incorporate all of waqas' new fields: (look at /LC subdir!)
-  G115: 400gb
-  G133: 79gb
-  G160: 153gb
-  G248: 81gb
-  G389: 310gb
+X write a script to take an input file of field_ids, and then make
+  `02_get_EB_checkplots` accept the input file, and just get the EB checkplots
+  for every field.
 
-Ran:
-> python 02_get_EB_checkplots.py 081 30 
-> python 02_get_EB_checkplots.py 248 30 > G248_DSP30.out &
+  Run it as: ./get_EB_checkplot &
+
+X Hide (by moving LCs) things with:
+  X All top 5 peaks (from BLS and SPDM) > 30 days
+  X If all peaks < 30d (from BLS and SPDM) are within 0.01day of a multiple of
+    1 day
+
+X incorporate all of waqas' new fields: (look at /LC subdir!)
+  G115
+  G133
+  G160
+  G248
+  G389
+  (ran at DSP_lim = 30)
+
+* incorporate GB's suggestions:
+  * Lower DSP limit
+
+I'd also lower the DSP limit. And a match between the BLS peaks and SPDM peaks
+should increase the priority. 
+Also, there is a relation between max duration and period. This is a function
+of stellar type for a planetary transit (not much dependent on the planet
+radius, as that is typically << than the star). For EBs, the relation will be
+less tight, as it depends on both stars, but can be used as a filter  to avoid
+too wide eclipses.
+
 
 
 * deal with neighboring stars that get the same periods (i

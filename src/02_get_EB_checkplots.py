@@ -166,9 +166,9 @@ def parse_blsanalsum_for_BLS_peaks(max_DSP=None,Ntra_min=3):
             print('{:s} exists; continue.'.format(out_path))
         else:
             # Apply gawk powers
-            gawk_call='gawk \'($16 > {:s}) && ($25 > {:d}) && '.format(\
+            gawk_call='gawk \'($16 > {:s}) && ($25 >= {:d}) && '.format(\
                 max_DSP, Ntra_min)+\
-                '(substr($27,1,1) > {:d}) && (substr($27,2,1) > {:d})'.format(\
+                '(substr($27,1,1) >= {:d}) && (substr($27,2,1) >= {:d})'.format(\
                 NTV_first_char_atleast, NTV_second_char_atleast)+\
                 ' {{print}}\' {:s} '.format(blsanalsum_path)+\
                 '| gawk \'{printf ("%15s\\t%d\\t%.7f\\t%.5f\\t%.7'+\
@@ -249,18 +249,17 @@ def download_parsed_LCs(DSP_lim=None,field_id=None):
     # Download the sqlitecurves for our field that meet our cuts.
     url_base = 'http://data.hatsurveys.org/archive/'
 
-    lcfpaths = ['hatnet/DR0/{:s}/'.format(field_id)+'/'+hatid+\
+    lcfpaths = ['hatnet/DR0/{:s}/'.format(field_id)+hatid+\
             '-V0-DR0-hatlc.sqlite.gz' for hatid in out.index \
             if np.all(out.ix[hatid].has_sqlc)]
-    print('\n\nBeginning sqlitecurve download for {:s} ({:d} total).\n\n'.\
-            format(field_name, len(lcfpaths)))
+    print('\nBeginning sqlitecurve download for {:s} ({:d} total).\n'.\
+            format(field_name, len(np.unique(lcfpaths))))
     k = 0
-    for ix, lcfpath in enumerate(lcfpaths):
+    for ix, lcfpath in enumerate(np.unique(lcfpaths)):
         # If you already have the LC, don't redownload it. 
-        if ix % 20 == 0:
-            print('{:d}: {:s}. (Update)'.format(ix,lcfpath))
         if os.path.exists(write_dir+'/'+lcfpath.split('/')[-1]):
-            print('{:s} exists, continue.'.format(lcfpath.split('/')[-1]))
+            print('{:d}: {:s} exists, continue.'.format(\
+                    ix, write_dir+'/'+lcfpath.split('/')[-1]))
             continue
         else:
             # Download and write the LC
@@ -313,7 +312,7 @@ def periodicity_analysis(out,
         if not os.path.isdir(outpath):
             os.makedirs(outpath)
 
-    for hatid in out.index:
+    for ix, hatid in enumerate(out.index):
         if np.all(out.ix[hatid]['has_sqlc']):
             LC_cut_path = LC_write_path+'/'+hatid+tail_str
             LC_periodcut_path = LC_write_path+'/periodcut/'+hatid+tail_str
@@ -400,7 +399,11 @@ def periodicity_analysis(out,
 
 
         else:
+            print('{:d}: {:s} or LC counterpart exists; continue.'.\
+                    format(ix, CP_cut_path))
             continue
+
+    print('\nDone with periodicity analysis for {:s}.\n\n'.format(field_name))
 
     if DEBiL_write:
         # Write DEBiL "input list" of HAT-IDs and periods.

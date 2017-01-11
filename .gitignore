@@ -10,6 +10,7 @@ field_*
 /src/DEBiL/src/HAT*txt
 /src/dev/astrobase*
 /src/*out
+/src/LOGS*
 data/LCs/*
 data/HATpipe/*
 data/intermed/*
@@ -20,3 +21,4 @@ data/DEBiL_heads/*
 data/CPs_cut/*
 data/LCs_cut/*
 results/prelim*
+

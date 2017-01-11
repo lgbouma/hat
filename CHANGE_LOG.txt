@@ -1,3 +1,11 @@
+Tue 10 Jan 2017 09:24:03 PM EST
+
+Wrote wrapper to automatically process every field you give it.
+
+Corrected typos in `parse_blsanalsum_for_BLS_peaks`
+
+
+==============================
 Tue 10 Jan 2017 02:42:58 PM EST
 
 `parse_blsanalsum_for_BLS_peaks`: (pre-direct periodicity analysis)
