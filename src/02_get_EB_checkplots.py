@@ -389,10 +389,16 @@ def periodicity_analysis(out,
                 # Additional case to hide: if the only good peaks below 30 days
                 # are multiples of 1 day (within 0.01days, absolute)
                 bestperiods = spdmp['nbestperiods']+blsp['nbestperiods']
-                period_cut = 30.
-                bparr = np.array(bestperiods)
-                if np.all(bparr > period_cut) or \
-                np.all(np.isclose(bparr[bparr<period_cut]%1., 0., atol=1e-2)):
+                best3periods = spdmp['nbestperiods'][:3]+\
+                        blsp['nbestperiods'][:3]
+                maxperiod = 30. # days
+                minperiod = 0.502 # days; else this harmonic of 1d happens
+                proxto1dmult = 0.01 # days
+                bparr, b3parr = np.array(bestperiods), np.array(best3periods)
+                if np.all(bparr > maxperiod) or \
+                np.all(np.isclose(\
+                (abs(b3parr[(b3parr<maxperiod)&(b3parr>minperiod)])-1.)%1.,\
+                0., atol=1e-2)):
                     # Move the eb_checkplot, and the LC to subdirs
                     os.rename(LC_cut_path, LC_periodcut_path)
                     os.rename(CP_cut_path, CP_periodcut_path)

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DSP_lim=30
+DSP_lim=20
 
 mapfile -t fieldIDs < INPUT_field_ID_numbers.txt
 
