@@ -43,18 +43,85 @@ X incorporate all of waqas' new fields: (look at /LC subdir!)
   G389
   (ran at DSP_lim = 30)
 
-* incorporate GB's suggestions:
-  * Lower DSP limit
+X Impose better 1 day alias penalty:
 
-I'd also lower the DSP limit. And a match between the BLS peaks and SPDM peaks
-should increase the priority. 
-Also, there is a relation between max duration and period. This is a function
-of stellar type for a planetary transit (not much dependent on the planet
-radius, as that is typically << than the star). For EBs, the relation will be
-less tight, as it depends on both stars, but can be used as a filter  to avoid
-too wide eclipses.
+  If, for the 3 highest peaks of BLS and SPDM spectra (all 6 of them),
+  of the peaks below 30 days and above 0.502 days if 
+
+    |peak values - 1| (mod 1) is within 0.01 days,
+
+  throw it out.
+  (E.g., 0.995, 2.006, 6.997, and the same next 3, would be thrown out)
+  (E.g., 0.985, 2.006, 6.997, and the same next 3, would not be thrown out)
+
+X Make ylims smaller on EB checkplots, helpful to catch smaller transits
+  (likely go off standard devn once phase-folded... big detached EBs will be
+  obvious, so another option: just lower conditions that already exist)
+
+X incorporate GB's suggestions:
+  X Lower DSP limit (to 20), rerun.
+  * Match btwn BLS peaks and SPDM peaks should increase priority
+  * Relation btwn max duration and period: it's a function of stellar type for
+    planetary transits. For EBs, relation is less tight, b/c it depends on both
+    stars, but can still be used to filter & avoid too-wide eclipses.
+
+Wed 11 Jan 2017 04:48:26 PM EST
+Began "big run":
+
+(sci) luke@crispy:~/Dropbox/proj/hat/src$ cat INPUT_field_ID_numbers.txt 
+199
+081
+133
+248
+115
+133
+160
+389
+
+--------------------
+TODO:
+
+X G199 field has an error:
+
+  (sci) luke@crispy:~/Dropbox/proj/hat/src$ Traceback (most recent call last):
+    File "02_get_EB_checkplots.py", line 444, in <module>
+      out = download_parsed_LCs(DSP_lim=DSP_lim, field_id=field_id)
+    File "02_get_EB_checkplots.py", line 231, in download_parsed_LCs
+      tab = ascii.read(blsdat_path, delimiter='\t', names=col_names)
+    File
+  "/home/luke/Dropbox/miniconda3/envs/sci/lib/python3.5/site-packages/astropy/io/ascii/ui.py",
+  line 313, in read
+      dat = _guess(table, new_kwargs, format, fast_reader_param)
+    File
+  "/home/luke/Dropbox/miniconda3/envs/sci/lib/python3.5/site-packages/astropy/io/ascii/ui.py",
+  line 451, in _guess
+      dat = reader.read(table)
+    File
+  "/home/luke/Dropbox/miniconda3/envs/sci/lib/python3.5/site-packages/astropy/io/ascii/core.py",
+  line 1141, in read
+      self.lines = self.inputter.get_lines(table)
+    File
+  "/home/luke/Dropbox/miniconda3/envs/sci/lib/python3.5/site-packages/astropy/io/ascii/core.py",
+  line 280, in get_lines
+      with get_readable_fileobj(table) as file_obj:
+    File "/home/luke/Dropbox/miniconda3/envs/sci/lib/python3.5/contextlib.py",
+  line 59, in __enter__
+      return next(self.gen)
+    File
+  "/home/luke/Dropbox/miniconda3/envs/sci/lib/python3.5/site-packages/astropy/utils/data.py",
+  line 199, in get_readable_fileobj
+      fileobj = io.FileIO(name_or_obj, 'r')
+  FileNotFoundError: [Errno 2] No such file or directory:
+  '../data/HATpipe/blsanalsums/cuts/G199_Cand_DSP_cut_20.txt'
+
+-> fixed. This was in the path locations.
 
 
+
+* figure out the stellar header data (e.g. json file writing) thing!
+  / incorporate Waqas' changes to astrobase (different way of calling the
+  checkplot. Add option to turn off obnoxious green highlighting)
+  --> how to also parse outputs.
 
 * deal with neighboring stars that get the same periods (i
   think we have a check below)

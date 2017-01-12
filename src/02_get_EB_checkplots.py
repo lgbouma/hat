@@ -344,8 +344,13 @@ def periodicity_analysis(out,
 
                 # Period analysis: Stellingwerf phase dispersion minimization
                 # and rerun Box-Least-Squares. Range of interesting periods:
-                # 0.5days-25days.
-                smallest_p, biggest_p = 0.5, 100.
+                # 0.5days-100days. BLS can only search for periods < half the
+                # light curve observing baseline. (N.b. 100d signals are
+                # basically always going to be stellar rotation)
+                smallest_p = 0.5
+                biggest_p = min((times[-1] - times[0])/2., 100.)
+
+                print('\nStellingwerf...\n')
                 spdmp = periodbase.stellingwerf_pdm(times,mags,errs,
                     autofreq=True,
                     startp=smallest_p,
@@ -359,6 +364,7 @@ def periodicity_analysis(out,
                     sigclip=None, # no sigma clipping
                     nworkers=None)
 
+                print('\nBLS...\n')
                 blsp = periodbase.bls_parallel_pfind(times,mags,errs,
                     startp=smallest_p,
                     endp=biggest_p, # don't search full timebase
