@@ -63,8 +63,7 @@ def get_neighboring_fields(field_id):
     fo = open('DATA_nbhr_fields.txt', 'r')
     nbhr_lines = fo.readlines()
     fo.close()
-    nbhr_fields_line = [l for l in nbhr_lines[2:]
-            if int(l[:3]) == int(field_id)]
+    nbhr_fields_line = [l for l in nbhr_lines[2:] if int(l[:3]) == int(field_id)]
     assert len(nbhr_fields_line) == 1, 'nbhr_fields_line should be singleton'
     nbhr_fields = nbhr_fields_line[0][4:-1].split(',')
     nbhr_field_subdirs = list(map(lambda x:'G'+x+'/', nbhr_fields))
@@ -214,7 +213,7 @@ def download_parsed_LCs(DSP_lim=None,field_id=None):
     names = 'HATID,ROWID,PERIOD,Q,EPOCH,SNR,DSP,NTR,OOTSIG'
     col_names = tuple([n for n in names.split(',')])
     # Get neighboring fields, and paths to them on HAT computers.
-    nbhr_fields, nbhr_field_paths = get_neighboring_fields(field_id)
+    nbhr_fields, nbhr_field_paths_HAT = get_neighboring_fields(field_id)
 
     # For each blsanalsum in this field and neighboring fields, get astropy
     # table of blsanalsum data for HAT objects with DSP>DSP_lim, Ntra>Ntra_min,
@@ -223,8 +222,18 @@ def download_parsed_LCs(DSP_lim=None,field_id=None):
     blsdat_paths = []
 
     for field in nbhr_fields:
-        thisbls_f = '{:s}_Cand_DSP_cut_{:d}.txt'.format(field_name, DSP_lim)
+        thisbls_f = 'G{:s}_Cand_DSP_cut_{:d}.txt'.format(field, DSP_lim)
         blsdat_paths.append(blsanalsum_path+thisbls_f)
+    # Some of the fields from blsdat_paths will not have a 
+    # "cuts/G???_Cand_DSP_cut_??.txt" file b/c of the HAT directory structure.
+    # Find which ones we previously downloaded and got cuts on; drop the rest.
+    for ix, blsdat_path in enumerate(blsdat_paths):
+        if not os.path.exists(blsdat_path):
+            blsdat_paths.pop(ix)
+
+    print('Reading in the following paths:\n')
+    for blsdp in blsdat_paths:
+        print(blsdp)
 
     for ix, blsdat_path in enumerate(blsdat_paths):
         if ix == 0:
@@ -393,12 +402,18 @@ def periodicity_analysis(out,
                         blsp['nbestperiods'][:3]
                 maxperiod = 30. # days
                 minperiod = 0.502 # days; else this harmonic of 1d happens
-                proxto1dmult = 0.01 # days
+                proxto1d = 0.01 # days
                 bparr, b3parr = np.array(bestperiods), np.array(best3periods)
+                # All above max period, or:
+                # all those below max period are a bit above a multiple of 1, or:
+                # all those below max period are a bit below a multiple of 1
                 if np.all(bparr > maxperiod) or \
                 np.all(np.isclose(\
-                (abs(b3parr[(b3parr<maxperiod)&(b3parr>minperiod)])-1.)%1.,\
-                0., atol=1e-2)):
+                abs((b3parr[(b3parr<maxperiod)&(b3parr>minperiod)]%1.)-1.),\
+                0., atol=proxto1d)) or \
+                np.all(np.isclose(\
+                abs(b3parr[(b3parr<maxperiod)&(b3parr>minperiod)]%1.),\
+                0., atol=proxto1d)):
                     # Move the eb_checkplot, and the LC to subdirs
                     os.rename(LC_cut_path, LC_periodcut_path)
                     os.rename(CP_cut_path, CP_periodcut_path)
