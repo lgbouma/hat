@@ -21,6 +21,8 @@ from astropy.table import vstack
 from astrobase import hatlc, periodbase, plotbase
 from shutil import copyfile
 import argparse
+from numpy import isclose as npisclose, all as npall, diff as npdiff, \
+        minimum as npminimum
 
 def exists_remote(host, path, is_dir=False):
     '''
@@ -237,9 +239,9 @@ def download_parsed_LCs(DSP_lim=None,field_id=None):
 
     for ix, blsdat_path in enumerate(blsdat_paths):
         if ix == 0:
-            tab = ascii.read(blsdat_path, delimiter='\t', names=col_names)
+            tab = ascii.read(blsdat_path, names=col_names)
         else:
-            end = ascii.read(blsdat_path, delimiter='\t', names=col_names)
+            end = ascii.read(blsdat_path, names=col_names)
             tab = vstack([tab, end])
 
     # `tab` df contains all fields. `out` df has those in `field_id` (e.g., G199).
@@ -316,8 +318,16 @@ def periodicity_analysis(out,
     # paths for LCs and EB checkplots
     LC_write_path = '../data/LCs_cut/'+field_name+'_'+str(DSP_lim)
     CP_write_path = '../data/CPs_cut/'+field_name+'_'+str(DSP_lim)
-    for outpath in [LC_write_path, LC_write_path+'/periodcut',
-            CP_write_path, CP_write_path+'/periodcut']:
+
+    for outpath in [LC_write_path,
+            LC_write_path+'/periodcut',
+            LC_write_path+'/onedaycut',
+            LC_write_path+'/shortcoveragecut',
+            CP_write_path,
+            CP_write_path+'/periodcut',
+            CP_write_path+'/onedaycut',
+            CP_write_path+'/shortcoveragecut']:
+
         if not os.path.isdir(outpath):
             os.makedirs(outpath)
 
@@ -325,11 +335,17 @@ def periodicity_analysis(out,
         if np.all(out.ix[hatid]['has_sqlc']):
             LC_cut_path = LC_write_path+'/'+hatid+tail_str
             LC_periodcut_path = LC_write_path+'/periodcut/'+hatid+tail_str
+            LC_onedaycut_path = LC_write_path+'/onedaycut/'+hatid+tail_str
+            LC_shortcoveragecut_path = LC_write_path+'/shortcoveragecut/'+hatid+tail_str
             CP_cut_path = CP_write_path+'/'+hatid+'.png'
             CP_periodcut_path = CP_write_path+'/periodcut/'+hatid+'.png'
+            CP_onedaycut_path = CP_write_path+'/onedaycut/'+hatid+'.png'
+            CP_shortcoveragecut_path = CP_write_path+'/shortcoveragecut/'+hatid+'.png'
 
-            if (not os.path.exists(CP_cut_path)) and \
-            (not os.path.exists(CP_periodcut_path)):
+            if (not os.path.exists(CP_cut_path)) \
+            and (not os.path.exists(CP_periodcut_path)) \
+            and (not os.path.exists(CP_onedaycut_path)) \
+            and (not os.path.exists(CP_shortcoveragecut_path)):
                 # Get sqlitecurve data.
                 obj_path = LC_read_path+hatid+tail_str
                 lcd, msg = hatlc.read_and_filter_sqlitecurve(obj_path)
@@ -370,7 +386,7 @@ def periodicity_analysis(out,
                     endp=biggest_p, # don't search full timebase
                     stepsize=1.0e-5,
                     mintransitduration=0.01, # minimum transit length in phase
-                    maxtransitduration=0.8,  # maximum transit length in phase
+                    maxtransitduration=0.7,  # maximum transit length in phase
                     nphasebins=200,
                     autofreq=False, # figure out f0, nf, and df automatically
                     nbestpeaks=5,
@@ -392,37 +408,85 @@ def periodicity_analysis(out,
                        phasebin=0.002,
                        plotxlim=[-0.6,0.6])
 
-                # Copy LCs with DSP>DSP_lim to /data/LCs_cut
+                # Copy LCs with DSP>DSP_lim to /data/LCs_cut/G???_??/
                 if not os.path.exists(LC_cut_path):
                     copyfile(obj_path, LC_cut_path)
+                    print('Copying {} -> {}\n'.format(obj_path, LC_cut_path))
 
-                # Cut: if _all_ nbestperiods > 30 days, likely Cepheid or other
-                # pulsation periodicity that is not of interest.
-                # While there may legitimately be detached binaries at > 30
-                # days, we will struggle to find them, and their lower
-                # harmonics should be in their periodograms.
-                # Additional case to hide: if the only good peaks below 30 days
-                # are multiples of 1 day (within 0.01days, absolute)
+                #### CUTS ####
+                maxperiod = 30. # days
                 bestperiods = spdmp['nbestperiods']+blsp['nbestperiods']
                 best3periods = spdmp['nbestperiods'][:3]+\
                         blsp['nbestperiods'][:3]
-                maxperiod = 30. # days
-                minperiod = 0.502 # days; else this harmonic of 1d happens
-                proxto1d = 0.01 # days
                 bparr, b3parr = np.array(bestperiods), np.array(best3periods)
-                # All above max period, or:
-                # all those below max period are a bit above a multiple of 1, or:
-                # all those below max period are a bit below a multiple of 1
-                if np.all(bparr > maxperiod) or \
-                np.all(np.isclose(\
-                abs((b3parr[(b3parr<maxperiod)&(b3parr>minperiod)]%1.)-1.),\
-                0., atol=proxto1d)) or \
-                np.all(np.isclose(\
-                abs(b3parr[(b3parr<maxperiod)&(b3parr>minperiod)]%1.),\
-                0., atol=proxto1d)):
-                    # Move the eb_checkplot, and the LC to subdirs
+
+                minperiod = 0.5002 # days; else this harmonic of 1d happens
+                proxto1d_s, proxto1d_m, proxto1d_b = 0.01, 0.015, 0.02 # days
+                bestbls, bestspdm = blsp['bestperiod'], spdmp['bestperiod']
+
+                mindayscoverage = 3.
+                cadence = 4. # minutes
+                minnumpoints = mindayscoverage * 24 * 60 / cadence
+
+                # (If 5 of the 6 best peaks are above max period (30 days)), OR
+                # (If all of the SPDM peaks are above max period and the BLS
+                # peaks are not, and all the BLS peaks less than the max period
+                # are within 0.1days separate from e/other) OR
+                # (The same, with BLS/SPDM switched), OR
+                # (The difference between all SPDM is <0.1day and the
+                # difference between all BLS is <0.1day)
+                #
+                # [n.b. latter broad-peak behavior happens b/c of stellar rotn]
+                sb3parr = np.sort(b3parr)
+                spdmn = np.array(spdmp['nbestperiods'][:3])
+                blsn = np.array(blsp['nbestperiods'][:3])
+                ps = 0.2 # peak_separation, days
+                b3pint = b3parr[(b3parr<maxperiod)&(b3parr>2*minperiod)] # interesting periods
+
+                if npall(sb3parr[1:] > maxperiod) \
+                   or \
+                   ((npall(spdmn>maxperiod) and not npall(blsn>maxperiod)) and
+                   npall(abs(npdiff(blsn[blsn<maxperiod]))<ps)) \
+                   or \
+                   ((npall(blsn>maxperiod) and not npall(spdmn>maxperiod)) and
+                   npall(abs(npdiff(spdmn[spdmn<maxperiod]))<ps)) \
+                   or \
+                   (npall(abs(npdiff(spdmn))<ps) and
+                   npall(abs(npdiff(blsn))<ps)):
+
                     os.rename(LC_cut_path, LC_periodcut_path)
                     os.rename(CP_cut_path, CP_periodcut_path)
+
+                # All 6 best peaks below max period (and above 1d) are within 
+                # 0.02days of a multiple of 1, OR
+                # Both the BLS and SPDM max peak are within 0.015d of a
+                # multiple of 1, OR
+                # At least one of the best BLS&SPDM peaks are within 0.015d of one,
+                # and of the remaining peaks > 1day, the rest are within 0.03days of
+                # multiples of one.
+                elif (npall(npisclose(npminimum(\
+                    b3pint%1., abs((b3pint%1.)-1.)), 0., atol=proxto1d_b)))\
+                    or \
+                    ((npisclose(npminimum(\
+                    bestbls%1., abs((bestbls%1.)-1.)), 0., atol=proxto1d_m))
+                    and (npisclose(npminimum(\
+                    bestspdm%1., abs((bestspdm%1.)-1.)), 0., atol=proxto1d_m)))\
+                    or \
+                    (\
+                    (npisclose(abs(bestbls-1.), 0., atol=proxto1d_m) or
+                    npisclose(abs(bestspdm-1.), 0., atol=proxto1d_m)) and
+                    (npall(npisclose(npminimum(\
+                    b3pint%1., abs((b3pint%1.)-1.)), 0., atol=proxto1d_m*2.)))\
+                    ):
+
+                    os.rename(LC_cut_path, LC_onedaycut_path)
+                    os.rename(CP_cut_path, CP_onedaycut_path)
+
+                # If there is not enough coverage. "Enough" means 3 days of
+                # observations (at 4 minute cadence).
+                elif len(mags) < minnumpoints:
+                    os.rename(LC_cut_path, LC_shortcoveragecut_path)
+                    os.rename(CP_cut_path, CP_shortcoveragecut_path)
 
 
         else:

@@ -116,7 +116,15 @@ X G199 field has an error:
 
 -> fixed. This was in the path locations.
 
+X Also minimum number of points in the LC. If there are less than like... 400,
+  just ignore it.
+X Add other directories to move things to
+X If all of the top 6 peaks are > 30 days, moev it out
+X If >=8 of the 10 top peaks are > 30days, move it out
 
+* Also maybe expand absolute tolerance to 0.015 days (rather than 0.01).
+* Also half days: 0.5, 1.5, 2.5, 3.5, 4.5
+* add 4/3days, 2/3days into harmonic tester.
 
 * figure out the stellar header data (e.g. json file writing) thing!
   / incorporate Waqas' changes to astrobase (different way of calling the
