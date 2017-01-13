@@ -144,8 +144,8 @@ def parse_blsanalsum_for_BLS_peaks(max_DSP=None,Ntra_min=3):
     # Joel's "NTV" column example: 
     # "53200" means 2nd best transit has btwn 50-60% of covered pts as best 
     # transit. 3rd best has 30-40%. 4th 20-30%. Rest 0-10%.
-    NTV_first_char_atleast = 6
-    NTV_second_char_atleast = 4
+    NTV_first_char_atleast = 5
+    NTV_second_char_atleast = 2
     data_path = '../data/HATpipe/blsanalsums/'
     write_path = '../data/HATpipe/blsanalsums/cuts/'
     existing_blsanalsums = os.listdir(data_path)
