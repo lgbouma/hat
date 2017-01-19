@@ -372,7 +372,7 @@ def periodicity_analysis(out,
                     startp=smallest_p,
                     endp=biggest_p,
                     normalize=False,
-                    stepsize=1.0e-4,
+                    stepsize=5.0e-5,
                     phasebinsize=0.05,
                     mindetperbin=9,
                     nbestpeaks=5,
@@ -384,9 +384,9 @@ def periodicity_analysis(out,
                 blsp = periodbase.bls_parallel_pfind(times,mags,errs,
                     startp=smallest_p,
                     endp=biggest_p, # don't search full timebase
-                    stepsize=1.0e-5,
+                    stepsize=5.0e-5,
                     mintransitduration=0.01, # minimum transit length in phase
-                    maxtransitduration=0.7,  # maximum transit length in phase
+                    maxtransitduration=0.6,  # maximum transit length in phase
                     nphasebins=200,
                     autofreq=False, # figure out f0, nf, and df automatically
                     nbestpeaks=5,
@@ -420,15 +420,17 @@ def periodicity_analysis(out,
                        normto='globalmedian',
                        normmingap=4.0,
                        outfile=CP_cut_path,
-                       sigclip=4.0,
+                       sigclip=[10.0,-3.0],
                        varepoch='min',
                        phasewrap=True,
                        phasesort=True,
                        phasebin=0.002,
-                       plotxlim=[-0.8,0.8],
+                       plotxlim=[-0.7,0.7],
                        plotdpi=120,
                        returndict=False,
-                       pickleprotocol=3)
+                       pickleprotocol=3,
+                       greenhighlight=False,
+                       xgridlines=[-0.5,0.,0.5])
 
                 # Copy LCs with DSP>DSP_lim to /data/LCs_cut/G???_??/
                 if not os.path.exists(LC_cut_path):
