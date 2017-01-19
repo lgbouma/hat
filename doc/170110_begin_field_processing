@@ -122,9 +122,27 @@ X Add other directories to move things to
 X If all of the top 6 peaks are > 30 days, moev it out
 X If >=8 of the 10 top peaks are > 30days, move it out
 
+X Make harsher number of transits pre-cut. At least 3 transits. The second must
+  have at least 50% of the data points of the first, and the third must have at
+  least 20% of the data points as the first.
+
+
+
+* Harsher periodcut:
+  If one of BLS or SPDM has all > 25days,
+  enforce that the other has at least one less than 15 days.
+
+* For npdiff to avoid bigpeak:
+  take distance from MEAN of all of all peaks,
+  **OR: for peaks>15days, total range of all such peaks is less than ~0.5days**
+
+* Make ylims even smaller (like 0.6mag TOTAL, 0.45 below, 0.15 above)
+  > or just finally do it right -- in terms of stddevn of mags pts
+
 * Also maybe expand absolute tolerance to 0.015 days (rather than 0.01).
 * Also half days: 0.5, 1.5, 2.5, 3.5, 4.5
 * add 4/3days, 2/3days into harmonic tester.
+
 
 * figure out the stellar header data (e.g. json file writing) thing!
   / incorporate Waqas' changes to astrobase (different way of calling the

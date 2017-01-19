@@ -1,3 +1,9 @@
+Thu 19 Jan 2017 09:26:05 AM EST
+
+Wrote routine that saves output of periodograms to gzipped pickles that will
+then be updated with the Tornado web app.
+
+==============================
 Tue 10 Jan 2017 09:24:03 PM EST
 
 Wrote wrapper to automatically process every field you give it.

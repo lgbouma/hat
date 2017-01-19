@@ -18,7 +18,7 @@ import requests, os, time
 import pandas as pd, numpy as np
 from astropy.io import ascii
 from astropy.table import vstack
-from astrobase import hatlc, periodbase, plotbase, checkplot
+from astrobase import hatlc, periodbase, plotbase
 from shutil import copyfile
 import argparse
 from numpy import isclose as npisclose, all as npall, diff as npdiff, \
@@ -313,41 +313,41 @@ def periodicity_analysis(out,
 
     # File name format: HAT-199-0025234-V0-DR0-hatlc.sqlite.gz
     field_name = 'G' + field_id # e.g., 'G081'
-    LC_read_path = '../data/LCs/'+field_name+'/' # sqlitecurves exist here
-    # paths to write LCs (.sqlite.gz) and EB checkplot pickles (.pkl.gz)
+    LC_read_path = '../data/LCs/'+field_name+'/' # where sqlitecurves already exist
+    tail_str = '-V0-DR0-hatlc.sqlite.gz'
+    # paths for LCs and EB checkplots
     LC_write_path = '../data/LCs_cut/'+field_name+'_'+str(DSP_lim)
     CP_write_path = '../data/CPs_cut/'+field_name+'_'+str(DSP_lim)
-    tailstr = '-V0-DR0-hatlc.sqlite.gz'
-    outtype = '.pkl.gz'
 
-    cuttypes = ['periodcut','onedaycut','shortcoveragecut']
-    LC_write_paths = [LC_write_path+'/'+ct for ct in cuttypes]
-    LC_write_paths.insert(0, LC_write_path)
-    CP_write_paths = [CP_write_path+'/'+ct for ct in cuttypes]
-    CP_write_paths.insert(0, CP_write_path)
-    outpaths = LC_write_paths + CP_write_paths
+    for outpath in [LC_write_path,
+            LC_write_path+'/periodcut',
+            LC_write_path+'/onedaycut',
+            LC_write_path+'/shortcoveragecut',
+            CP_write_path,
+            CP_write_path+'/periodcut',
+            CP_write_path+'/onedaycut',
+            CP_write_path+'/shortcoveragecut']:
 
-    for outpath in outpaths:
         if not os.path.isdir(outpath):
             os.makedirs(outpath)
 
     for ix, hatid in enumerate(out.index):
         if np.all(out.ix[hatid]['has_sqlc']):
-            LC_cut_path = LC_write_path+'/'+hatid+tailstr
-            LC_periodcut_path = LC_write_path+'/periodcut/'+hatid+tailstr
-            LC_onedaycut_path = LC_write_path+'/onedaycut/'+hatid+tailstr
-            LC_shortcoveragecut_path = LC_write_path+'/shortcoveragecut/'+hatid+tailstr
-            CP_cut_path = CP_write_path+'/checkplot-'+hatid+outtype
-            CP_periodcut_path = CP_write_path+'/periodcut/checkplot-'+hatid+outtype
-            CP_onedaycut_path = CP_write_path+'/onedaycut/checkplot-'+hatid+outtype
-            CP_shortcoveragecut_path = CP_write_path+'/shortcoveragecut/checkplot-'+hatid+outtype
+            LC_cut_path = LC_write_path+'/'+hatid+tail_str
+            LC_periodcut_path = LC_write_path+'/periodcut/'+hatid+tail_str
+            LC_onedaycut_path = LC_write_path+'/onedaycut/'+hatid+tail_str
+            LC_shortcoveragecut_path = LC_write_path+'/shortcoveragecut/'+hatid+tail_str
+            CP_cut_path = CP_write_path+'/'+hatid+'.png'
+            CP_periodcut_path = CP_write_path+'/periodcut/'+hatid+'.png'
+            CP_onedaycut_path = CP_write_path+'/onedaycut/'+hatid+'.png'
+            CP_shortcoveragecut_path = CP_write_path+'/shortcoveragecut/'+hatid+'.png'
 
             if (not os.path.exists(CP_cut_path)) \
             and (not os.path.exists(CP_periodcut_path)) \
             and (not os.path.exists(CP_onedaycut_path)) \
             and (not os.path.exists(CP_shortcoveragecut_path)):
                 # Get sqlitecurve data.
-                obj_path = LC_read_path+hatid+tailstr
+                obj_path = LC_read_path+hatid+tail_str
                 lcd, msg = hatlc.read_and_filter_sqlitecurve(obj_path)
                 # Make sure all observations are at the same zero-point.
                 normlcd = hatlc.normalize_lcdict(lcd)
@@ -394,41 +394,19 @@ def periodicity_analysis(out,
                     nworkers=None,
                     sigclip=None)
 
-                '''varinfo is a dictionary with the following keys:
-                  {'objectisvar': True if object is time-variable,
-                   'vartags': list of variable type tags (strings),
-                   'varisperiodic': True if object is a periodic variable,
-                   'varperiod': variability period of the object,
-                   'varepoch': epoch of variability in JD}'''
-
-                #NOTE: varepoch in varinfo is not what gets called for best
-                # guess at epoch. the kwarg varepoch does that. 
-                varinfo = {'objectisvar': True, # anything here has DSP>DSP_lim
-                        'vartags':None,
-                        'varisperiodic':True,
-                        'varperiod':spdmp['bestperiod'],
-                        'varepoch':None}
-
-                lspinfolist = [spdmp,blsp]
-
-                # Make and save checkplot as pickle.
-                cp = checkplot.checkplot_pickle(lspinfolist,times,mags,errs,
-                       nperiodstouse = 3,
+                # Make and save checkplot to be looked at.
+                cp = plotbase.make_eb_checkplot(spdmp,blsp,times,mags,errs,
                        objectinfo=normlcd['objectinfo'],
-                       varinfo=varinfo,
                        findercmap='gray_r',
                        normto='globalmedian',
                        normmingap=4.0,
                        outfile=CP_cut_path,
-                       sigclip=4.0,
+                       sigclip=None,
                        varepoch='min',
                        phasewrap=True,
                        phasesort=True,
                        phasebin=0.002,
-                       plotxlim=[-0.8,0.8],
-                       plotdpi=120,
-                       returndict=False,
-                       pickleprotocol=3)
+                       plotxlim=[-0.6,0.6])
 
                 # Copy LCs with DSP>DSP_lim to /data/LCs_cut/G???_??/
                 if not os.path.exists(LC_cut_path):
