@@ -22,4 +22,4 @@ data/CPs_cut/*
 data/LCs_cut/*
 data/detachedEBs*
 results/prelim*
-
+*pkl.gz

@@ -1,0 +1,116 @@
+Fri 20 Jan 2017 12:14:46 PM EST
+
+Steps:
+* Get phased EB LC. Subtract the EB signal
+  (requires some interpolation to go back to original LC points).
+
+* Now you have to search for planets. Options:
+
+1) By eye. (takes forever, terrible SNR per transit. Likely infeasible)
+
+2) Run BLS (issues: period btwn transits won't be same. Can have two or three
+transits per conjunction, b/c the stars move fast. Between different
+conjunctions, the planet orbital plane also precesses -- OOM of this effect?)
+
+3) Run QATS (i.e. accept variable periods).
+
+4) Implement CB-BLS (Aviv Ofir 2008).
+"""Transiting circumbinary planets (CBP) produce transit signals that
+are neither periodic not constant in duration or depth. These
+complications contribute to the low number of detected transiting
+CBP (nine published in total so far), and limited detection to
+systems that exhibit transits that are relatively deep, i.e. giant
+planets with individually-significant transit events. On the other
+hand, planets around single stars taught us that small planets far
+outnumber larger planets; consequently the ability to detect small
+CBPs is of the essence in order to correctly describe CBP
+demographics. Unfortunately, all currently known transiting CBP
+were detected either by eye or by some ad-hoc technique that has
+nothing to do with the 3-body dynamics of CBPs (e.g. QATS, Carter
+& Agol 2013) limiting their detection power
+
+CB-BLS (Ofir 2008) is an algorithm for the detection of transiting
+CBPs that was proposed well before the first transiting CBP was
+detected (Doyle et al 2011) but was unfortunately not used thus far.
+CB-BLS was further evolved since its introduction; it is now
+optimally sensitive and general, it can detect transit signals that are
+not individually significant, and it has relatively well-understood
+statistical properties that allow placing limits on non-detections. As
+a test for its competence we show it to blindly detect all currently
+known transiting CBPs, including these in eccentric and/or
+inclined and/or very long planetary orbits that failed other
+techniques.
+We currently run a thorough search for CBPs in the Kepler dataset
+using CB-BLS. On top of presenting CB-BLS and it capabilities, we
+will give an update on the search's status and preliminary results.
+
+4) Use EB transit durations to constrain interesting transit durations to search
+thru LC. Bias search towards multiple-transits-per-conjunction objects (by
+searching just for things that match a transit signal in those durations). Also
+accept "high" (few-sigma) SNR single events, if there are many. Constrain
+search to >few times EB period.
+------------------------------
+
+5) Generate CBP LC using EBOP (or a variant).
+N.b. there's no well-maintained public code, AFAIK, that will generate a CBP
+LC for you. However, the planet transits are just Mandel+Agol.
+The star transits are Mandel&Agol, 1-(light blocked by transiting
+object)+(light from transiting object), without relative radii assumptions.
+
+
+==============================
+Mon 23 Jan 2017 11:36:49 AM EST
+
+Post-prototype of:
+* get phased EB LC (by binning ~100 bins over the best SPDM peak), with an
+injected planet
+* reconstruct "model" EB LC by copy-pasting it over the observing
+(non-homogeneous) times
+* subtract "model" EB LC from data 
+* rerun period search (for exactly periodic, huge planet)
+
+Really we have two things:
+1) get rid of EB signal
+2) planet search in what remains
+
+Comments:
+* Bin over fewer phase points when constructing first model -- as-is, it's way
+too noisy. (E.g. consider a ~50 point model, instead of the few-hundred that
+you're currently doing)
+> Risky. Bin too few, and you get  
+
+* Write a routine to identify specific EB peaks in the observed data. (Physics
+free).
+Approach: once you have first model (from phase-folded LC), do something like
+an "autocorrelation" (dot product btwn data & model at suspected peak), but
+in the time domain rather than frequency.
+This might just involve taking the first model, then shifting it around the
+suspected peak (overlap btwn edges is OK), computing chi^2, and finding
+whatever's smallest.
+
+* When getting rid of EB signal, once EB transit times are identified, __throw
+out__ the binary eclipses (both primary and secondary--- may be better with
+separate models of each). 
+In other words, do not show the data (and save this "residual" LC -- with the
+primary and secondary binary eclipses thrown out -- in the pickles)
+
+* Eventually for planet search:
+- Best approaches likely visual and a "dip finder". (I.e. a hard-cut, or a few
+hard-cut, boxes of whatever depth to "matched-filter" hunt for dips. Perhaps
+then flag them different colors in LCs to be eye-vetted). OFC the idea here is
+to not assume periodicity.
+
+--------------------
+X First, refactor prototype notebook to a proper program.
+  X Debug it
+
+* Write sub-routine (helper function) to identify all the transit peaks.
+E.g. take "first model", then shift it around the suspected peak in time
+domain. Produce autocorrelation function (something similar). Or compute chi^2.
+Find whatever's smallest.
+
+* Then throw out the binary eclipses. (Both primary and secondary. Might need
+separate models of each?)
+
+* Write dip-finder for residuals from planet search (no assumption of
+periodicity reqd)

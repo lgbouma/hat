@@ -1,3 +1,18 @@
+Mon 23 Jan 2017 04:48:27 PM EST
+
+Added 03_EB_processing.py: program that will process detached EB light curves,
+"cleaning" them for a mix of "visual inspection" and automated dip-finding.
+
+It includes a rudimentary injection/recovery routine (unrealistically assuming 
+periodic transiting planet in input detached EB data).
+
+Added notebooks used for prototyping.
+
+Major improvements will be needed to improve effectiveness (e.g., identifying
+and removing EB transits, smoother spline fits).
+
+
+==============================
 Thu 19 Jan 2017 09:26:05 AM EST
 
 Wrote routine that saves output of periodograms to gzipped pickles that will
