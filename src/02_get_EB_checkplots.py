@@ -363,6 +363,8 @@ def periodicity_analysis(out,
                 # 0.5days-100days. BLS can only search for periods < half the
                 # light curve observing baseline. (N.b. 100d signals are
                 # basically always going to be stellar rotation)
+                if len(times) < 50 or len(mags[np.isfinite(mags)]) < 50:
+                    continue
                 smallest_p = 0.5
                 biggest_p = min((times[-1] - times[0])/2.01, 100.)
 

@@ -11,6 +11,7 @@ field_*
 /src/dev/astrobase*
 /src/*out
 /src/LOGS*
+/src/data*
 data/LCs/*
 data/HATpipe/*
 data/intermed/*

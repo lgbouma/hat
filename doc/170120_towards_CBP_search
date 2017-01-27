@@ -114,3 +114,11 @@ separate models of each?)
 
 * Write dip-finder for residuals from planet search (no assumption of
 periodicity reqd)
+
+* Write "flattener" to subtract out stellar variability btwn eclipses for
+detached EBs. (Via fitting w/ a high order polynomial -- like a l=300 Legendre
+polynomial)
+
+* Write "whitener": following fourier_filters.ipynb __remove__ select sine
+functions (at appropriate periods) to take out particular components of the
+power spectra ("periodograms").

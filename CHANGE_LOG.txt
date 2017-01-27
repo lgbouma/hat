@@ -1,3 +1,14 @@
+Fri 27 Jan 2017 09:23:47 AM EST
+
+Rearranging things. Applied human pattern-recognition algorithm to set of 
+LCs for DEB identification ('visual inspection'). Next: is it enough to be
+interesting?
+
+Added shell scripts to wrap visual inspection routines.
+
+Hard-copied checkplotserver (not sure how github handles symlinks)
+
+==============================
 Mon 23 Jan 2017 04:48:27 PM EST
 
 Added 03_EB_processing.py: program that will process detached EB light curves,
