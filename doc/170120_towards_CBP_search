@@ -104,6 +104,13 @@ to not assume periodicity.
 X First, refactor prototype notebook to a proper program.
   X Debug it
 
+* Arrange HAT "weird" objects for GB discussion
+
+* Process next 20 fields
+
+* Based on the csv file of Kepler CBPs, verify that -none- of them (16b, 34b, etc.)
+in fact have transits in HAT
+
 * Write sub-routine (helper function) to identify all the transit peaks.
 E.g. take "first model", then shift it around the suspected peak in time
 domain. Produce autocorrelation function (something similar). Or compute chi^2.
@@ -122,3 +129,9 @@ polynomial)
 * Write "whitener": following fourier_filters.ipynb __remove__ select sine
 functions (at appropriate periods) to take out particular components of the
 power spectra ("periodograms").
+
+To avoid the painful process of visual identification, options include:
+1) locally linear embedding techinques (KEBC paper 2;
+http://adsabs.harvard.edu/abs/2015ApJS..217...28Y), or 2) self organizing maps
+(e.g., Armstrong's recent paper:
+ https://academic.oup.com/mnras/article-lookup/doi/10.1093/mnras/stw2881)
