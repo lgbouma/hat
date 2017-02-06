@@ -238,11 +238,27 @@ def download_parsed_LCs(DSP_lim=None,field_id=None):
         print(blsdp)
 
     for ix, blsdat_path in enumerate(blsdat_paths):
-        if ix == 0:
+
+        if ix == 0 and os.path.exists(blsdat_path):
             tab = ascii.read(blsdat_path, names=col_names)
-        else:
+
+        elif os.path.exists(blsdat_path):
             end = ascii.read(blsdat_path, names=col_names)
             tab = vstack([tab, end])
+
+        elif not os.path.exists(blsdat_path) and \
+            not exists_remote('lbouma@phn12.astro.princeton.edu',
+            '/H/BIGPROJ/hatuser/2007_hatnet_phot/'+\
+            blsdat_path.split('/')[-1][:4], is_dir=True):
+
+            print('{:s} not found. (Does not exist on phn12).'.\
+                        format(blsdat_path))
+            continue
+
+        else:
+            assert 0, \
+            'Failed at {:s}, but found remote directory. Debug failure.'.\
+                    format(blsdat_path)
 
     # `tab` df contains all fields. `out` df has those in `field_id` (e.g., G199).
     # (The specific one being analyzed)

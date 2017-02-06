@@ -17,7 +17,7 @@
 
 
 echo "Generating checkplotlist for server to read..."
-python 03_look_at_LCs.py 173
+python 03_look_at_LCs.py 116
 
 wait $(jobs -p)
 

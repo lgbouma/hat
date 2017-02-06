@@ -1,0 +1,116 @@
+Sat 04 Feb 2017 09:20:33 AM EST
+
+How is this done for different cases?
+
+DETRENDING: 
+
+For Kepler data, using "raw" or "PA" photometry.
+(Not Presearch Data Donditioning, PDC, detrended data, since it's not robust
+against long-duration events, cf. Fanelli et al. (2011)).
+
+For detached EBs, citing the suppl info Sec 6 of Welsh+ (2012):
+""
+Detrending is complicated by the presence of eclipses in the light
+curve which must be removed before detrending can be done. 
+The basic process for this is the data is fit to a Legendre polynomial of order k, 
+where k is  typically very high (60-200). Then sigmaclipping is done so any points 
+3σ above  or below the fit are discarded. Then the fit is recalculated, and again 
+sigma-clipped. This is repeated until all eclipses or other discontinuities, 
+such as those caused by cosmic rays, are removed, allowing the final fit to be 
+subtracted from the original data, providing a detrended light curve.
+""
+
+Alt approach:
+Armstrong (2014) whitening procedure:
+""
+Phase fold the LC at the binary period.
+Then bin the phased curve into equal width bins, and compute the median of each
+bin.
+If a given bin has significantly higher variance than the average, subdivide it
+further into higher resolution bins.
+Then compute the medians of those higher resolution bins.
+Finally, subtract the medians of each bin from every point in a given bin (over
+this effectively adaptive grid).
+
+Issue: occasionally leave residual binary signals around regions of sharp
+variation, notably ingress/egress points for detached EB eclipses. To lessen
+the effect, after subtraction check each curve for periodic binary remantns and
+manually remove them (i.e. throw away that data).
+""
+
+
+MEASURING ECLIPSE TIMES:
+""
+The times of mideclipse for all primary and secondary events in Kepler-34 and
+Kepler-35 were measured in a manner similar to that described in ref. 46. 
+Briefly, the times of primary eclipse and the times of secondary eclipse are 
+measured separately for each source. Given an initial linear ephemeris and an 
+estimate of the eclipse width, the data around the eclipses were isolated, and
+locally detrended with a cubic polynomial (the eclipses were masked out of the
+fit). The detrended data were then folded on the linear ephemeris, and a cubic 
+Hermite spline fit was used to make an eclipse template. 
+The template was then iteratively correlated with each eclipse to produce a
+measurement of the eclipse time. This time was then corrected to account for
+the Long Cadence 29.4244 minute bin size, which otherwise could induce an 
+alias periodicity.
+""
+
+Note that this technique does not work for contact binaries:
+""
+We investigate these two subclasses of eclipsing binaries because the eclipse 
+timing technique outlined in Supplementary Section 8 does not work well if 
+the first and fourth contact points (start of ingress and end of egress) are 
+not well defined. We also chose to omit systems with P < 0.9 days, as these in 
+general also suffer from eclipse timing measurement difficulties owing to
+out-of-eclipse variations due to tidal distortions and reflection effects. 
+Of the systems classified as detached or semi-detached with P > 0.9 days, a 
+total of 1039 systems have reliably measured orbital periods.
+""
+
+""
+For this investigation, out of the 1039 systems, we focus on 750 systems that 
+exhibit primary and secondary eclipses. The periods of these 750 systems 
+range from 0.9 to 276 days, and these data span a duration of 671 days.
+*The requirement for both eclipses to be present comes from the need to be able 
+to measure differences in orbital period defined by the primary eclipses PA 
+and the secondary eclipses PB*. We find this difference in period to be the 
+strongest indicator of a dynamical interaction with a third body, especially 
+in cases where the O–C variations are small. Having both primary and secondary 
+eclipses is crucial, as otherwise one would not be able to find independent
+trends (i.e. a divergence) in the O-C. (It should be noted that for circular
+orbits PA − PB = 0, so any selection that relies purely on period differences 
+will be biased against finding third bodies if the EB stars are on circular 
+orbits.) Thus in the Kepler data there are 750 systems with primary and
+secondary eclipses with P ranging from 0.9–276 days and classified as detached
+or semi-detached EBs. This defines the sample used to search for transiting 
+circumbinary planets.
+
+Of these 750 systems, 134 (18%) exhibited greater than 3σ differences in
+primary and secondary orbital periods. Many of these showed large variations 
+(tens of minutes to hours) and thus the perturbing body was presumed to be 
+stellar in nature. The remaining systems with small timing variations could 
+either have stellar-mass companions on distant orbits, or planet-mass companions
+in nearby orbits. Fortunately any periodicity in the O–C variations provides
+(usually within a factor of 2) the period of the 3rd body. The smallest 
+variations with the shortest periods are therefore the most interesting when 
+searching for circumbinary planets. However, this is also the regime where
+noise, and more seriously, spurious periodicities due to stellar pulsations and
+starspots, also affect the O-C curve, hampering the search.
+
+Thus all 750 systems were examined for possible transit or tertiary eclipse
+events, not just the 134 most interesting cases. Since the presence of the 
+primary and secondary eclipse precluded the use of standard planet-transit 
+search algorithms, each light curve was inspected visually for the presence 
+of transit events. (Our initial attempt at fitting and removing the eclipses 
+and then searching the residuals for transits did not work; there were always 
+small remainders after the best-fit model was subtracted that would lead to 
+spurious detections.) 
+
+Planet transits-like events were found in four systems: KIC 8572936 (Kepler-34),
+KIC 9837578 (Kepler-35), KIC 12644769 (Kepler-16), and KIC 5473556 (KOI-2939).
+
+As described above, the search is neither fully complete nor fully quantifiable, 
+and thus precludes a robust estimate on the frequency of circumbinary planets at the
+present time. However, a robust lower limit is possible, and is described in detail 
+in the following section.
+""
