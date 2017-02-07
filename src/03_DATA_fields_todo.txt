@@ -1,4 +1,12 @@
+314
 092
+198
+204
+220
+246
+340
+384
+432
 088 # wonkily already put thru to harddisk
 362 # whereis?
 432 # not done yet

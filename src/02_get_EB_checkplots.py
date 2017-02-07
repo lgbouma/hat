@@ -89,6 +89,7 @@ def scp_blsanalsum_output(field_id=None):
     # pipeline output
     host_name = 'lbouma@phn12.astro.princeton.edu'
 
+    # Note that get_neighboring_fields includes field_id (self)
     nbhr_fields, nbhr_field_paths = get_neighboring_fields(field_id)
     write_path = '../data/HATpipe/blsanalsums/'
 
@@ -247,11 +248,15 @@ def download_parsed_LCs(DSP_lim=None,field_id=None):
             tab = vstack([tab, end])
 
         elif not os.path.exists(blsdat_path) and \
-            not exists_remote('lbouma@phn12.astro.princeton.edu',
+            not (exists_remote('lbouma@phn12.astro.princeton.edu',
             '/H/BIGPROJ/hatuser/2007_hatnet_phot/'+\
-            blsdat_path.split('/')[-1][:4], is_dir=True):
+            blsdat_path.split('/')[-1][:4]+'/Cand/blsanalsum.txt',
+            is_dir=False) \
+            or exists_remote('lbouma@phn12.astro.princeton.edu',
+            '/H/BIGPROJ/hatuser/2007_hatnet_phot/'+\
+            blsdat_path.split('/')[-1][:4]+'/blsanalsum.txt', is_dir=False) ):
 
-            print('{:s} not found. (Does not exist on phn12).'.\
+            print('{:s} not found. (blsanalsum.txt does not exist on phn12).'.\
                         format(blsdat_path))
             continue
 
