@@ -17,7 +17,7 @@ import subprocess, os, pipes
 import requests, os, time
 import pandas as pd, numpy as np
 from astropy.io import ascii
-from astropy.table import vstack
+from astropy.table import vstack, Table
 from astrobase import hatlc, periodbase, plotbase, checkplot
 from shutil import copyfile
 import argparse
@@ -208,7 +208,8 @@ def download_parsed_LCs(DSP_lim=None,field_id=None):
     head_path = head_base+field_name+'-sqlitecurves.csv'
     head_data = pd.read_csv(head_path)
     # Make the directory to write sqlite.gz light curves
-    write_dir = '../data/LCs/'+field_name
+    #write_dir = '../data/LCs/'+field_name
+    write_dir = '/media/luke/LGB_tess_data/hat/LCs/'+field_name
     if not os.path.exists(write_dir):
         os.makedirs(write_dir)
 
@@ -244,8 +245,11 @@ def download_parsed_LCs(DSP_lim=None,field_id=None):
             tab = ascii.read(blsdat_path, names=col_names)
 
         elif os.path.exists(blsdat_path):
-            end = ascii.read(blsdat_path, names=col_names)
-            tab = vstack([tab, end])
+            try:
+                end = ascii.read(blsdat_path, names=col_names)
+                tab = vstack([tab, end])
+            except:
+                tab = ascii.read(blsdat_path, names=col_names)
 
         elif not os.path.exists(blsdat_path) and \
             not (exists_remote('lbouma@phn12.astro.princeton.edu',
@@ -334,7 +338,8 @@ def periodicity_analysis(out,
 
     # File name format: HAT-199-0025234-V0-DR0-hatlc.sqlite.gz
     field_name = 'G' + field_id # e.g., 'G081'
-    LC_read_path = '../data/LCs/'+field_name+'/' # sqlitecurves exist here
+    #LC_read_path = '../data/LCs/'+field_name+'/' # sqlitecurves exist here
+    LC_read_path = '/media/luke/LGB_tess_data/hat/LCs/'+field_name+'/' # sqlitecurves exist here
     # paths to write LCs (.sqlite.gz) and EB checkplot pickles (.pkl.gz)
     LC_write_path = '../data/LCs_cut/'+field_name+'_'+str(DSP_lim)
     CP_write_path = '../data/CPs_cut/'+field_name+'_'+str(DSP_lim)
