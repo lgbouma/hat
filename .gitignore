@@ -24,5 +24,6 @@ data/CPs_cut/*
 data/LCs_cut/*
 data/detachedEBs*
 data/*pkls*
+data/*cand*
 results/prelim*
 *pkl.gz

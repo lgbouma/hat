@@ -1,0 +1,18 @@
+Mon 20 Feb 2017 04:10:45 PM EST
+
+Pawlak et al. (2016) ran BLS (vartools -- Joel's version -- it's _faster_) on
+order(100k+) LCs from OGLE, and used the auxiliary parameters returned by BLS
+(bls_auxiliaries.png in the notes) as features to train a random forest
+classifier.
+
+Really, it's pretty cut-and-dry classification, but the point is that it does a
+much better job at siphoning through the first mega-barrage of crap (likely
+down to weaker periodicities than what I'm currently searching).
+
+Options:
+1) emulate this random-forest classification approach based on features from
+BLS.
+2) random-forest classification, but using combination of features from BLS /
+PDM.
+3) self-organizing maps.
+4) continue with visual for HAT identification purposes.

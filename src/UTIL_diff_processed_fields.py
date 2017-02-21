@@ -46,3 +46,6 @@ for ix, wf in enumerate(waitingfields):
 
 print('\n{:d} fields have been processed, {:d} have been received from WB.'.format(\
         len(procfields), len(receivedfields)))
+
+print('\nThis is a list of all received fields:')
+print(receivedfields)
